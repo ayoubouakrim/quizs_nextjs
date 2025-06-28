@@ -1,242 +1,227 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BookOpen, Brain, FileText, BarChart3, Settings, User, Menu, X, GraduationCap, Upload, Zap } from 'lucide-react';
+import {
+    GraduationCap,
+    BarChart3,
+    Brain,
+    Upload,
+    BookOpen,
+    User,
+    Settings,
+    Menu,
+    X,
+    FileText,
+    Zap,
+    PenTool,
+    MoreVertical,
+    Bell,
+    Book
+} from 'lucide-react';
+import NavBar from '@/components/layout/navBar';
 
-export default function DashboardPage() {
-
+const ImprovedNavbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
 
+
+    const stats = [
+        { icon: FileText, label: "Documents", value: "12", change: "+3", color: "text-blue-600", bg: "bg-blue-50" },
+        { icon: Brain, label: "Quizzes", value: "48", change: "+12", color: "text-purple-600", bg: "bg-purple-50" },
+        { icon: BookOpen, label: "Summaries", value: "24", change: "+8", color: "text-green-600", bg: "bg-green-50" },
+        { icon: PenTool, label: "Exercises", value: "36", change: "+15", color: "text-orange-600", bg: "bg-orange-50" }
+    ];
+
+    const recentFiles = [
+        { id: 1, name: "Introduction to Machine Learning.pdf", type: "PDF", size: "2.4 MB", date: "2 hours ago", status: "processed" },
+        { id: 2, name: "Advanced JavaScript Concepts.docx", type: "DOCX", size: "1.8 MB", date: "1 day ago", status: "processing" },
+        { id: 3, name: "Database Design Principles.txt", type: "TXT", size: "856 KB", date: "2 days ago", status: "processed" },
+        { id: 4, name: "React Components Guide.md", type: "MD", size: "1.2 MB", date: "3 days ago", status: "processed" }
+    ];
+
+    const recentActivity = [
+        { action: "Generated quiz", file: "Machine Learning.pdf", time: "30 min ago", type: "quiz" },
+        { action: "Created summary", file: "JavaScript Concepts.docx", time: "2 hours ago", type: "summary" },
+        { action: "Built exercises", file: "Database Design.txt", time: "5 hours ago", type: "exercise" },
+        { action: "Uploaded file", file: "React Components.md", time: "1 day ago", type: "upload" }
+    ];
+
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
-    }
+        setActiveDropdown(null);
+    };
 
-    const toggleDropdown = (dropdowwnName : any) => {
-        setActiveDropdown(activeDropdown === dropdowwnName ? null : dropdowwnName);
-    }
+    const toggleDropdown = (dropdown: any) => {
+        setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+    };
+
+    const closeDropdowns = () => {
+        setActiveDropdown(null);
+    };
 
     return (
-    <nav className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
-              <GraduationCap className="h-8 w-8 text-blue-600 mr-2" />
-              <span className="text-gray-800 text-xl font-bold">EduAI</span>
-            </div>
-          </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              {/* Dashboard */}
-              <a
-                href="/dashboard"
-                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center"
-              >
-                <BarChart3 className="h-4 w-4 mr-1" />
-                Dashboard
-              </a>
+        <div className="min-h-screen bg-gray-50" onClick={() => setActiveDropdown(null)}>
+            <NavBar />
+            <div className="pt-4">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                    <div className="space-y-6">
+                        {/* Welcome Banner */}
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                                Hello, welcome to the EduAI Dashboard!
+                            </h1>
+                            <p className="text-gray-600 mb=4">
+                                Ready to transform your educational content with AI? Upload a file to get started.
+                            </p>
 
-              {/* AI Tools Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => toggleDropdown('aitools')}
-                  className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center"
-                >
-                  <Brain className="h-4 w-4 mr-1" />
-                  AI Tools
-                  <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {activeDropdown === 'aitools' && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                    <div className="py-1">
-                      <a href="/quiz-generator" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Quiz Generator
-                      </a>
-                      <a href="/summarizer" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Summarizer
-                      </a>
-                      <a href="/exercises" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
-                        <Zap className="h-4 w-4 mr-2" />
-                        Exercise Builder
-                      </a>
+                            {/* quick Actions */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <button
+                                    onClick={() => setActiveTab('quizzes')}
+                                    className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 group"
+                                >
+                                    <div className="p-2 bg-blue-100 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
+                                        <Brain className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-medium text-gray-900 text-sm">Generate Quiz</p>
+                                        <p className="text-xs text-gray-500">Create questions</p>
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('summaries')}
+                                    className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-sm transition-all duration-200 group"
+                                >
+                                    <div className="p-2 bg-green-100 rounded-lg mr-3 group-hover:bg-green-200 transition-colors">
+                                        <BookOpen className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-medium text-gray-900 text-sm">Create Summary</p>
+                                        <p className="text-xs text-gray-500">Extract insights</p>
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('exercises')}
+                                    className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-orange-300 hover:shadow-sm transition-all duration-200 group"
+                                >
+                                    <div className="p-2 bg-orange-100 rounded-lg mr-3 group-hover:bg-orange-200 transition-colors">
+                                        <BookOpen className="h-4 w-4 text-orange-600" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-medium text-gray-900 text-sm">Create Exercise</p>
+                                        <p className="text-xs text-gray-500">Build interactive exercises</p>
+                                    </div>
+
+                                </button>
+
+
+                            </div>
+                        </div>
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {stats.map((stat, index) => {
+                                const IconComponent = stat.icon;
+                                return (
+                                    <div key={index} className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-shadow">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className={`p-2 rounded-lg ${stat.bg}`}>
+                                                <IconComponent className={`h-5 w-5 ${stat.color}`} />
+                                            </div>
+                                            <span className="text-xs text-green-600 font-medium">{stat.change}</span>
+                                        </div>
+                                        <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                                        <p className="text-sm text-gray-600">{stat.label}</p>
+                                    </div>
+                                );
+
+                            })}
+                        </div>
+
+                        {/* File Upload */}
+                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Upload your educational content</h3>
+                            <p className="text-gray-500 mb-4">Drag and drop files here, or click to select</p>
+                            <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-400">
+                                <span className="px-2 py-1 bg-gray-100 rounded">PDF</span>
+                                <span className="px-2 py-1 bg-gray-100 rounded">DOCX</span>
+                                <span className="px-2 py-1 bg-gray-100 rounded">TXT</span>
+                                <span className="px-2 py-1 bg-gray-100 rounded">MD</span>
+                            </div>
+                        </div>
+
+                        {/* Recent files and activities */}
+                        <div className="grid lg:grid-cols-2 gap-6">
+                            {/* Recent Files Section */}
+                            <div className="bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 border-b border-gray-200">
+                                    <h3 className="font-semibold text-gray-900">Recent Files</h3>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    {recentFiles.slice(0, 4).map((file) => (
+                                        <div key={file.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                                    <FileText className="h-4 w-4 text-blue-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                                                    <p className="text-xs text-gray-500">{file.size} • {file.date}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <span className={`px-2 py-1 text-xs rounded-full ${file.status === 'processed'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-yellow-100 text-yellow-700'
+                                                    }`}>
+                                                    {file.status}
+                                                </span>
+                                                <button className="p-1 hover:bg-gray-100 rounded">
+                                                    <MoreVertical className="h-4 w-4 text-gray-400" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Recent Activities Section */}
+                            <div className="bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 border-b border-gray-200">
+                                    <h3 className="font-semibold text-gray-900">Recent Activity</h3>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    {recentActivity.map((activity, index) => (
+                                        <div key={index} className="flex items-center p-2">
+                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${activity.type === 'quiz' ? 'bg-purple-100' :
+                                                activity.type === 'summary' ? 'bg-green-100' :
+                                                    activity.type === 'exercise' ? 'bg-orange-100' : 'bg-blue-100'
+                                                }`}>
+                                                {activity.type === 'quiz' && <Brain className="h-4 w-4 text-purple-600" />}
+                                                {activity.type === 'summary' && <BookOpen className="h-4 w-4 text-green-600" />}
+                                                {activity.type === 'exercise' && <PenTool className="h-4 w-4 text-orange-600" />}
+                                                {activity.type === 'upload' && <Upload className="h-4 w-4 text-blue-600" />}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                                                <p className="text-xs text-gray-500">{activity.file} • {activity.time}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+
+
                     </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Upload */}
-              <a
-                href="/upload"
-                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center"
-              >
-                <Upload className="h-4 w-4 mr-1" />
-                Upload
-              </a>
-
-              {/* Library */}
-              <a
-                href="/library"
-                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center"
-              >
-                <BookOpen className="h-4 w-4 mr-1" />
-                Library
-              </a>
+                </div>
             </div>
-          </div>
-
-          {/* Right side - User menu */}
-          <div className="hidden md:block">
-            <div className="ml-4 flex items-center md:ml-6">
-              {/* Notifications */}
-              <button className="bg-gray-100 p-2 rounded-full text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                <span className="sr-only">View notifications</span>
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-3.5-3.5a5.98 5.98 0 010-8.48L21 2H9.5C7 2 5 4 5 6.5s2 4.5 4.5 4.5H15v6z" />
-                </svg>
-              </button>
-
-              {/* Profile dropdown */}
-              <div className="ml-3 relative">
-                <button
-                  onClick={() => toggleDropdown('profile')}
-                  className="bg-gray-100 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:bg-gray-200"
-                >
-                  <span className="sr-only">Open user menu</span>
-                  <User className="h-8 w-8 text-gray-600 p-1" />
-                </button>
-                {activeDropdown === 'profile' && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                    <div className="py-1">
-                      <a href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
-                        <User className="h-4 w-4 mr-2" />
-                        Your Profile
-                      </a>
-                      <a href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Settings
-                      </a>
-                      <a href="/logout" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
-                        Sign out
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={toggleMenu}
-              className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-all duration-200"
-            >
-              <span className="sr-only">Open main menu</span>
-              {isMenuOpen ? (
-                <X className="block h-6 w-6" />
-              ) : (
-                <Menu className="block h-6 w-6" />
-              )}
-            </button>
-          </div>
         </div>
-      </div>
 
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
-            <a
-              href="/dashboard"
-              className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium flex items-center"
-            >
-              <BarChart3 className="h-5 w-5 mr-2" />
-              Dashboard
-            </a>
-            
-            {/* Mobile AI Tools */}
-            <div className="space-y-1">
-              <div className="text-gray-700 px-3 py-2 text-base font-medium flex items-center">
-                <Brain className="h-5 w-5 mr-2" />
-                AI Tools
-              </div>
-              <div className="pl-6 space-y-1">
-                <a href="/quiz-generator" className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Quiz Generator
-                </a>
-                <a href="/summarizer" className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Summarizer
-                </a>
-                <a href="/exercises" className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  <Zap className="h-4 w-4 mr-2" />
-                  Exercise Builder
-                </a>
-              </div>
-            </div>
+    );
+};
 
-            <a
-              href="/upload"
-              className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium flex items-center"
-            >
-              <Upload className="h-5 w-5 mr-2" />
-              Upload
-            </a>
-            
-            <a
-              href="/library"
-              className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium flex items-center"
-            >
-              <BookOpen className="h-5 w-5 mr-2" />
-              Library
-            </a>
-          </div>
-          
-          {/* Mobile user menu */}
-          <div className="pt-4 pb-3 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center px-5">
-              <div className="flex-shrink-0">
-                <User className="h-10 w-10 text-gray-600 bg-gray-200 rounded-full p-2" />
-              </div>
-              <div className="ml-3">
-                <div className="text-base font-medium text-gray-800">User Name</div>
-                <div className="text-sm font-medium text-gray-500">user@example.com</div>
-              </div>
-            </div>
-            <div className="mt-3 px-2 space-y-1">
-              <a
-                href="/profile"
-                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium flex items-center"
-              >
-                <User className="h-5 w-5 mr-2" />
-                Your Profile
-              </a>
-              <a
-                href="/settings"
-                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium flex items-center"
-              >
-                <Settings className="h-5 w-5 mr-2" />
-                Settings
-              </a>
-              <a
-                href="/logout"
-                className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Sign out
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-}
+export default ImprovedNavbar;
