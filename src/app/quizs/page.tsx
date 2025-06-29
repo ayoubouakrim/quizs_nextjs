@@ -35,17 +35,19 @@ interface Quiz {
     status: 'active' | 'draft' | 'archived';
 }
 
-const QuizListPage = () => {
+const QuizsListPage = () => {
+
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterSubject, setFilterSubject] = useState('');
-    const [filterDifficulty, setFilterDifficulty] = useState('');
-    const [filterStatus, setFilterStatus] = useState('');
-    const [sortBy, setSortBy] = useState('createdAt');
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filterSubject, setFilterSubject] = useState("");
+    const [filterDifficulty, setFilterDifficulty] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-    // Mock data - replace with actual API call
+
+    // Mock Data
     useEffect(() => {
         const mockQuizzes: Quiz[] = [
             {
@@ -108,7 +110,7 @@ const QuizListPage = () => {
         setFilteredQuizzes(mockQuizzes);
     }, []);
 
-    // Filter and search logic
+    // Filter Logic
     useEffect(() => {
         let filtered = quizzes.filter(quiz => {
             const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -122,10 +124,10 @@ const QuizListPage = () => {
             return matchesSearch && matchesSubject && matchesDifficulty && matchesStatus;
         });
 
-        // Sort logic
+        // Sort Logic
         filtered.sort((a, b) => {
             let aValue, bValue;
-            
+
             switch (sortBy) {
                 case 'title':
                     aValue = a.title.toLowerCase();
@@ -147,7 +149,7 @@ const QuizListPage = () => {
                     aValue = a.createdAt;
                     bValue = b.createdAt;
             }
-            
+
             if (sortOrder === 'asc') {
                 return aValue > bValue ? 1 : -1;
             } else {
@@ -198,14 +200,15 @@ const QuizListPage = () => {
     const difficulties = ['beginner', 'intermediate', 'advanced', 'mixed'];
     const statuses = ['active', 'draft', 'archived'];
 
+
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className=" min-h-screen bg-gray-50">
             <NavBar />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-3">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Quizzes</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Quizs</h1>
                         <p className="text-gray-600">Manage and track your generated quizzes</p>
                     </div>
                     <button className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -213,54 +216,7 @@ const QuizListPage = () => {
                         Create New Quiz
                     </button>
                 </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center">
-                            <BookOpen className="w-8 h-8 text-blue-600" />
-                            <div className="ml-3">
-                                <p className="text-sm font-medium text-gray-600">Total Quizzes</p>
-                                <p className="text-2xl font-bold text-gray-900">{quizzes.length}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center">
-                            <Users className="w-8 h-8 text-green-600" />
-                            <div className="ml-3">
-                                <p className="text-sm font-medium text-gray-600">Total Attempts</p>
-                                <p className="text-2xl font-bold text-gray-900">
-                                    {quizzes.reduce((sum, quiz) => sum + quiz.totalAttempts, 0)}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center">
-                            <Trophy className="w-8 h-8 text-yellow-600" />
-                            <div className="ml-3">
-                                <p className="text-sm font-medium text-gray-600">Avg. Score</p>
-                                <p className="text-2xl font-bold text-gray-900">
-                                    {Math.round(quizzes.reduce((sum, quiz) => sum + quiz.averageScore, 0) / quizzes.length) || 0}%
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center">
-                            <Target className="w-8 h-8 text-purple-600" />
-                            <div className="ml-3">
-                                <p className="text-sm font-medium text-gray-600">Active Quizzes</p>
-                                <p className="text-2xl font-bold text-gray-900">
-                                    {quizzes.filter(quiz => quiz.status === 'active').length}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Filters and Search */}
+                {/* Filters */}
                 <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm mb-6">
                     <div className="flex flex-col lg:flex-row gap-4">
                         {/* Search */}
@@ -270,15 +226,15 @@ const QuizListPage = () => {
                                 <input
                                     type="text"
                                     placeholder="Search quizzes..."
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
+
                             </div>
                         </div>
-
                         {/* Filters */}
-                        <div className="flex flex-wrap gap-4">
+                        <div className=" flex flex-wrap gap-4">
                             <div className="relative">
                                 <select
                                     value={filterSubject}
@@ -292,7 +248,6 @@ const QuizListPage = () => {
                                 </select>
                                 <ChevronDown className="absolute right-2 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
                             </div>
-
                             <div className="relative">
                                 <select
                                     value={filterDifficulty}
@@ -308,7 +263,6 @@ const QuizListPage = () => {
                                 </select>
                                 <ChevronDown className="absolute right-2 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
                             </div>
-
                             <div className="relative">
                                 <select
                                     value={filterStatus}
@@ -346,15 +300,16 @@ const QuizListPage = () => {
                                 </select>
                                 <ChevronDown className="absolute right-2 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
                             </div>
+
                         </div>
+
                     </div>
                 </div>
-
                 {/* Quiz List */}
                 <div className="space-y-4">
                     {filteredQuizzes.length === 0 ? (
                         <div className="text-center py-12">
-                            <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4"/>
                             <h3 className="text-lg font-medium text-gray-900 mb-2">No quizzes found</h3>
                             <p className="text-gray-600">Try adjusting your search or filters</p>
                         </div>
@@ -427,12 +382,14 @@ const QuizListPage = () => {
                                 </div>
                             </div>
                         ))
+                        
                     )}
+
                 </div>
             </div>
             <Footer />
         </div>
-    );
-};
+    )
+}
 
-export default QuizListPage;
+export default QuizsListPage;

@@ -19,6 +19,7 @@ import {
     Book
 } from 'lucide-react';
 import NavBar from '@/components/layout/navBar';
+import Footer from '@/components/layout/footer';
 
 const ImprovedNavbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -219,6 +220,7 @@ const ImprovedNavbar = () => {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
 
     );
