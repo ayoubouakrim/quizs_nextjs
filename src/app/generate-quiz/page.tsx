@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Upload, FileText, Plus, X, Settings, Target, ChevronDown, Brain } from 'lucide-react';
 import NavBar from '@/components/layout/navBar';
 import Footer from '@/components/layout/footer';
+import { FileInfoService } from '@/services/FileInfoService';
 
 const GenerateQuizPage = () => {
     const [formData, setFormData] = useState({
@@ -75,10 +76,24 @@ const GenerateQuizPage = () => {
         setFormData(prev => ({ ...prev, [field]: value }));
     }
 
-    const handleSubmit = (e : any) => {
+    const handleSubmit = async (e : any) => {
         e.preventDefault();
         // Here you would typically handle the form submission, e.g., send data to an API
-        console.log('Form submitted:', formData);
+        if (!formData.file || !formData.subjectArea || !formData.academicLevel || !formData.difficulty) {
+            alert('Please fill in all required fields and upload a file.');
+            return;
+        }
+
+        // Send to API or handle the quiz generation logic here
+        const service = new FileInfoService();
+        const response = await service.generateQuiz(formData);
+        if (response) {
+            console.log('Quiz generated successfully:', response);
+            // Redirect or show success message
+        } else {
+            console.error('Failed to generate quiz');
+            // Show error message
+        }
     }
 
 
