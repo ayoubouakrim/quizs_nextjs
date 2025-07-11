@@ -6,9 +6,12 @@ export class ApiClient {
     }
 
     async get(endpoint: string ) : Promise<any>  {
+        const token = localStorage.getItem('token');
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+             },
         });
 
         if (!response.ok) {
@@ -23,6 +26,24 @@ export class ApiClient {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error(`POST request failed: ${response.statusText}`);
+        }
+
+        return response.json();
+    }
+
+    async postFile(endpoint: string, data: any): Promise<any> {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                
+            },
+            body: data
         });
 
         if (!response.ok) {

@@ -1,6 +1,7 @@
 "use client";
-
+import { QuizService } from '@/services/QuizService';
 import React, { useState, useEffect } from 'react';
+import { Quiz } from '@/model/Quiz';
 import { 
     Search, 
     Filter, 
@@ -19,24 +20,13 @@ import {
 } from 'lucide-react';
 import NavBar from '@/components/layout/navBar';
 import Footer from '@/components/layout/footer';
+import Link from 'next/link';
 
-interface Quiz {
-    id: string;
-    title: string;
-    subjectArea: string;
-    academicLevel: string;
-    difficulty: string;
-    numQuestions: number;
-    createdAt: string;
-    lastTaken?: string;
-    totalAttempts: number;
-    averageScore: number;
-    description: string;
-    status: 'active' | 'draft' | 'archived';
-}
 
 const QuizsListPage = () => {
 
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -48,70 +38,26 @@ const QuizsListPage = () => {
 
 
     // Mock Data
-    useEffect(() => {
-        const mockQuizzes: Quiz[] = [
-            {
-                id: '1',
-                title: 'Advanced React Concepts',
-                subjectArea: 'Computer Science',
-                academicLevel: 'Undergraduate',
-                difficulty: 'advanced',
-                numQuestions: 25,
-                createdAt: '2024-12-20T10:30:00Z',
-                lastTaken: '2024-12-22T14:20:00Z',
-                totalAttempts: 12,
-                averageScore: 78.5,
-                description: 'Comprehensive quiz covering hooks, context, and advanced patterns',
-                status: 'active'
-            },
-            {
-                id: '2',
-                title: 'World War II History',
-                subjectArea: 'History',
-                academicLevel: 'High School',
-                difficulty: 'intermediate',
-                numQuestions: 20,
-                createdAt: '2024-12-18T09:15:00Z',
-                lastTaken: '2024-12-21T16:45:00Z',
-                totalAttempts: 8,
-                averageScore: 85.2,
-                description: 'Key events, figures, and consequences of WWII',
-                status: 'active'
-            },
-            {
-                id: '3',
-                title: 'Basic Algebra',
-                subjectArea: 'Mathematics',
-                academicLevel: 'Middle School',
-                difficulty: 'beginner',
-                numQuestions: 15,
-                createdAt: '2024-12-15T11:45:00Z',
-                lastTaken: '2024-12-20T10:30:00Z',
-                totalAttempts: 25,
-                averageScore: 72.1,
-                description: 'Fundamental algebraic concepts and problem solving',
-                status: 'active'
-            },
-            {
-                id: '4',
-                title: 'Organic Chemistry Basics',
-                subjectArea: 'Chemistry',
-                academicLevel: 'Undergraduate',
-                difficulty: 'intermediate',
-                numQuestions: 30,
-                createdAt: '2024-12-10T14:20:00Z',
-                totalAttempts: 0,
-                averageScore: 0,
-                description: 'Introduction to organic compounds and reactions',
-                status: 'draft'
+    const fetchQuizzes = async () => {
+            try {
+                setLoading(true);
+                const quizService = new QuizService()
+                const data = await quizService.getAllQuizzes();
+                console.log("Fetched quizzes in FE:", data);
+                setQuizzes(data)
+            } catch (e) {
+                setError("Failed to fetch quizzes"+ e);
+            } finally {
+                setLoading(false);
             }
-        ];
-        setQuizzes(mockQuizzes);
-        setFilteredQuizzes(mockQuizzes);
+    };
+
+    useEffect(() => {
+        fetchQuizzes();
     }, []);
 
     // Filter Logic
-    useEffect(() => {
+    /* useEffect(() => {
         let filtered = quizzes.filter(quiz => {
             const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 quiz.subjectArea.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -158,7 +104,7 @@ const QuizsListPage = () => {
         });
 
         setFilteredQuizzes(filtered);
-    }, [quizzes, searchTerm, filterSubject, filterDifficulty, filterStatus, sortBy, sortOrder]);
+    }, [quizzes, searchTerm, filterSubject, filterDifficulty, filterStatus, sortBy, sortOrder]); */
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -200,6 +146,8 @@ const QuizsListPage = () => {
     const difficulties = ['beginner', 'intermediate', 'advanced', 'mixed'];
     const statuses = ['active', 'draft', 'archived'];
 
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <div className=" min-h-screen bg-gray-50">
@@ -307,27 +255,27 @@ const QuizsListPage = () => {
                 </div>
                 {/* Quiz List */}
                 <div className="space-y-4">
-                    {filteredQuizzes.length === 0 ? (
+                    {quizzes.length === 0 ? (
                         <div className="text-center py-12">
                             <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4"/>
                             <h3 className="text-lg font-medium text-gray-900 mb-2">No quizzes found</h3>
                             <p className="text-gray-600">Try adjusting your search or filters</p>
                         </div>
                     ) : (
-                        filteredQuizzes.map((quiz) => (
+                        quizzes.map((quiz) => (
                             <div key={quiz.id} className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="p-6">
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between">
                                         <div className="flex-1">
                                             <div className="flex items-start justify-between mb-2">
-                                                <h3 className="text-lg font-semibold text-gray-900">{quiz.title}</h3>
+                                                <h3 className="text-lg font-semibold text-gray-900">{quiz.libelle}</h3>
                                                 <div className="flex gap-2 ml-4">
                                                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(quiz.difficulty)}`}>
                                                         {quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
-                                                    </span>
-                                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(quiz.status)}`}>
-                                                        {quiz.status.charAt(0).toUpperCase() + quiz.status.slice(1)}
-                                                    </span>
+                                                    </span> 
+                                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(quiz.difficulty)}`}>
+                                                        {quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
+                                                    </span> 
                                                 </div>
                                             </div>
                                             <p className="text-gray-600 mb-3">{quiz.description}</p>
@@ -351,22 +299,24 @@ const QuizsListPage = () => {
                                             </div>
                                         </div>
                                         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 mt-4 lg:mt-0 lg:ml-6">
-                                            {quiz.totalAttempts > 0 && (
+                                            {quiz.nbRepCorrectes > 0 && (
                                                 <div className="flex gap-6 text-sm">
                                                     <div className="text-center">
-                                                        <p className="font-semibold text-gray-900">{quiz.totalAttempts}</p>
+                                                        <p className="font-semibold text-gray-900">{quiz.nbRepCorrectes}</p>
                                                         <p className="text-gray-500">Attempts</p>
                                                     </div>
                                                     <div className="text-center">
-                                                        <p className="font-semibold text-gray-900">{quiz.averageScore}%</p>
+                                                        <p className="font-semibold text-gray-900">{quiz.score}%</p>
                                                         <p className="text-gray-500">Avg Score</p>
                                                     </div>
                                                 </div>
                                             )}
                                             <div className="flex gap-2">
+                                                <Link href={`/quiz/${quiz.id}`}>
                                                 <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                                                     <Eye className="w-4 h-4" />
                                                 </button>
+                                                </Link>
                                                 <button className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
                                                     <Edit className="w-4 h-4" />
                                                 </button>
