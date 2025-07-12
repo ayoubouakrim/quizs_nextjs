@@ -32,5 +32,16 @@ export class QuizService {
         }
     }
 
+    async updateQuiz(quiz: Quiz): Promise<Quiz> {
+        try {
+            const response = await this.apiClient.put(`/quiz/update/${quiz.id}`, quiz);
+            console.log("data in Service:", JSON.stringify(response));
+            return response; 
+        } catch (error) {
+            console.error("Error updating quiz:", error);
+            throw new Error('Failed to update quiz');
+        }
+    }
+
 
 }

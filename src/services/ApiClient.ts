@@ -35,6 +35,24 @@ export class ApiClient {
         return response.json();
     }
 
+    async put(endpoint: string, data: any): Promise<any> {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error(`PUT request failed: ${response.statusText}`);
+        }
+
+        return response.json();
+    }
+
     async postFile(endpoint: string, data: any): Promise<any> {
         const token = localStorage.getItem('token');
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
