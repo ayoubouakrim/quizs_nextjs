@@ -8,6 +8,8 @@ import { QuestionService } from "@/services/QuestionService";
 import { Question } from "@/model/Question";
 import { Quiz } from "@/model/Quiz";
 import { QuizService } from "@/services/QuizService";
+import { useRouter } from 'next/navigation';
+import { useQuizStore } from "@/lib/QuizStore";
 interface Props {
     params: { id: string }
 }
@@ -16,13 +18,14 @@ const QuizPage = ({ params }: Props) => {
     const quizId = params.id;
 
     const quizService = new QuizService();
+    const router = useRouter();
 
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [questions, setQuestions] = useState<Question[]>([]);
     const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
 
     const getQuizWithQsts = async (id: string) => {
-        
+
         const quizData = await quizService.getQuizById(id);
         const questionService = new QuestionService();
         const questions = await questionService.getQuestionsByQuizId(id);
@@ -48,45 +51,54 @@ const QuizPage = ({ params }: Props) => {
 
 
     const handleSubmitQuiz = async () => {
-    // Check if all questions are answered
-    if (Object.keys(userAnswers).length !== questions.length) {
-        alert("Please answer all questions before submitting.");
-        return;
-    }
-
-    // Calculate correct answers
-    let correctAnswers = 0;
-
-    questions.forEach((question) => {
-        const selectedAnswerIndex = userAnswers[question.id];
-        if (selectedAnswerIndex !== undefined) {
-            const selectedResponse = question.responses[selectedAnswerIndex];
-            console.log('Is correct:', selectedResponse?.correct);
-            console.log('Selected answer:', selectedResponse);
-            console.log('Selected response object:', selectedResponse);
-            
-            if (selectedResponse && selectedResponse.correct === true) {
-                correctAnswers++;
-            }
+        // Check if all questions are answered
+        if (Object.keys(userAnswers).length !== questions.length) {
+            alert("Please answer all questions before submitting.");
+            return;
         }
-    });
 
-    console.log('Total correct answers:', correctAnswers);
-    console.log('Total questions:', questions.length);
+        // Calculate correct answers
+        let correctAnswers = 0;
 
-    // Calculate score (percentage)
-    const score = Math.round((correctAnswers / questions.length) * 100);
-    console.log('Final score:', score + '%');
+        questions.forEach((question) => {
+            const selectedAnswerIndex = userAnswers[question.id];
+            if (selectedAnswerIndex !== undefined) {
+                const selectedResponse = question.responses[selectedAnswerIndex];
+                console.log('Is correct:', selectedResponse?.correct);
+                console.log('Selected answer:', selectedResponse);
+                console.log('Selected response object:', selectedResponse);
 
-    quiz.nbRepCorrectes = correctAnswers; // Assuming Quiz has a nbRepCorrectes property
-    quiz.score = score; // Assuming Quiz has a score property
-    console.log('quiz info answers:', quiz);
-    // Submit the quiz results
-    const end = await quizService.updateQuiz(quiz);
+                if (selectedResponse && selectedResponse.correct === true) {
+                    correctAnswers++;
+                }
+            }
+        });
+
+        console.log('Total correct answers:', correctAnswers);
+        console.log('Total questions:', questions.length);
+
+        // Calculate score (percentage)
+        const score = Math.round((correctAnswers / questions.length) * 100);
+        console.log('Final score:', score + '%');
+
+        quiz.nbRepCorrect = correctAnswers; // Assuming Quiz has a nbRepCorrectes property
+        quiz.score = score; // Assuming Quiz has a score property
+        console.log('quiz info answers:', quiz);
+        // Submit the quiz results
+        quizService.updateQuiz(quiz);
+        
+        const totalQuestions = questions.length;
 
 
-    
-};
+        useQuizStore.getState().setQuiz(questions, userAnswers);
+
+        router.push(`/quiz/result?quiz_id=${quizId}&correct=${correctAnswers}&score=${score}&total=${totalQuestions}`);
+
+
+
+
+
+    };
 
 
     const isQuizComplete = () => {
@@ -94,14 +106,14 @@ const QuizPage = ({ params }: Props) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
             <NavBar />
 
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl mx-auto mt-4">
 
                 {/* Header */}
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/3 to-purple-600/3"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/3 to-gray-600/3"></div>
                     <div className="relative flex items-center justify-between">
                         <div className="flex items-center">
                             <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 rounded-2xl mr-6 shadow-lg">

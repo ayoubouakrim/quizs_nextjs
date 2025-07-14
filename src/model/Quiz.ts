@@ -7,6 +7,6 @@ export interface Quiz {
     difficulty: string;
     description: string;
     createdAt: string;
-    nbRepCorrectes: number;
+    nbRepCorrect: number;
     score: number;
 }

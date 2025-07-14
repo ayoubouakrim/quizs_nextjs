@@ -34,7 +34,7 @@ export class QuizService {
 
     async updateQuiz(quiz: Quiz): Promise<Quiz> {
         try {
-            const response = await this.apiClient.put(`/quiz/update/${quiz.id}`, quiz);
+            const response = await this.apiClient.put(`/quiz/update/id/${quiz.id}`, quiz);
             console.log("data in Service:", JSON.stringify(response));
             return response; 
         } catch (error) {
