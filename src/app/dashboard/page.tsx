@@ -20,10 +20,13 @@ import {
 } from 'lucide-react';
 import NavBar from '@/components/layout/navBar';
 import Footer from '@/components/layout/footer';
+import { useRouter } from 'next/navigation';
 
 const ImprovedNavbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
+
+    const router = useRouter();
 
 
     const stats = [
@@ -80,7 +83,7 @@ const ImprovedNavbar = () => {
                             {/* quick Actions */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <button
-                                    onClick={() => setActiveTab('quizzes')}
+                                    onClick={() => router.push('/generate-quiz')}
                                     className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 group"
                                 >
                                     <div className="p-2 bg-blue-100 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">

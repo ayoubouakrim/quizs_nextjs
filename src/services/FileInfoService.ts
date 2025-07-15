@@ -1,3 +1,4 @@
+import { SummaryPrompt } from "@/model/SummaryPrompt";
 import { ApiClient } from "./ApiClient";
 
 export class FileInfoService {
@@ -8,7 +9,7 @@ export class FileInfoService {
         this.apiClient = new ApiClient('http://localhost:8020/api/v1');
     }
 
-    async generateQuiz (formData : any): Promise<any> {
+    async generateQuiz(formData: any): Promise<any> {
 
         const realFormData = new FormData()
         realFormData.append('file', formData.file);
@@ -25,7 +26,29 @@ export class FileInfoService {
 
         return response;
     }
-    
+
+    async generateSummary(formData: SummaryPrompt): Promise<any> {
+        console.log("Form data in service:", formData);
+        const form = new FormData();
+
+        form.append('file', formData.file as File);
+        form.append('summaryLength', formData.summaryLength);
+        form.append('summaryType', formData.summaryType);
+        form.append('language', formData.language);
+        form.append('focusArea', formData.focusArea);
+        form.append('outputFormat', formData.outputFormat);
+        console.log("Form data prepared for summary generation:", form);
+
+        try {
+            const response = await this.apiClient.postFile('/summary/generate', form);
+            console.log("Summary generated:", response);
+            return response.summary;
+        } catch (error) {
+            console.error("Error generating summary:", error);
+            throw new Error('Failed to generate summary');
+        }
+    }
+
 
 
 }

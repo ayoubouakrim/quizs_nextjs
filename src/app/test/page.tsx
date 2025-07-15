@@ -1,241 +1,499 @@
 "use client";
 
-import React, { useState } from 'react';
-import { BookOpen, Check, Clock, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Calendar, FileText, Globe, Eye, Edit, Trash2, Plus, MoreVertical, Bookmark, Clock, TrendingUp, Star, Download, Share2, Archive } from 'lucide-react';
 
-const ModernQuizInterface = () => {
-  const [userAnswers, setUserAnswers] = useState({});
+const SummariesList = () => {
+  const [summaries, setSummaries] = useState([]);
+  const [filteredSummaries, setFilteredSummaries] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [filterLength, setFilterLength] = useState('all');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [viewMode, setViewMode] = useState('grid');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedSummaries, setSelectedSummaries] = useState([]);
 
-  const questions = [
+  // Enhanced mock data with more realistic content
+  const mockSummaries = [
     {
       id: 1,
-      question: "What is the primary purpose of React's useEffect hook?",
-      options: [
-        "To manage component state",
-        "To handle side effects in functional components",
-        "To create reusable components",
-        "To optimize rendering performance"
-      ],
-      type: "multiple-choice"
+      libelle: "Q4 2024 Financial Performance Analysis",
+      summaryLength: "detailed",
+      summaryType: "business",
+      language: "en",
+      focusArea: "Revenue optimization and cost reduction strategies",
+      outputFormat: "report",
+      createdAt: new Date('2024-12-15'),
+      wordCount: 2847,
+      readTime: 12,
+      isBookmarked: true,
+      tags: ["finance", "quarterly", "performance"],
+      status: "completed"
     },
     {
       id: 2,
-      question: "Which of the following are valid ways to style components in React?",
-      options: [
-        "CSS Modules",
-        "Styled Components",
-        "Tailwind CSS",
-        "Inline styles"
-      ],
-      type: "multiple-select"
+      libelle: "Neural Networks in Computer Vision: A Comprehensive Review",
+      summaryLength: "medium",
+      summaryType: "academic",
+      language: "en",
+      focusArea: "Deep learning architectures and applications",
+      outputFormat: "outline",
+      createdAt: new Date('2024-12-10'),
+      wordCount: 1543,
+      readTime: 7,
+      isBookmarked: false,
+      tags: ["AI", "computer vision", "research"],
+      status: "completed"
     },
     {
       id: 3,
-      question: "Next.js uses file-based routing by default.",
-      options: ["True", "False"],
-      type: "true-false"
+      libelle: "API Implementation Best Practices Guide",
+      summaryLength: "brief",
+      summaryType: "technical",
+      language: "en",
+      focusArea: "RESTful API design and security protocols",
+      outputFormat: "bullets",
+      createdAt: new Date('2024-12-08'),
+      wordCount: 892,
+      readTime: 4,
+      isBookmarked: true,
+      tags: ["API", "development", "security"],
+      status: "completed"
     },
     {
       id: 4,
-      question: "What does SSR stand for in the context of Next.js?",
-      options: [
-        "Static Site Rendering",
-        "Server-Side Rendering",
-        "Secure Socket Routing",
-        "Single State Repository"
-      ],
-      type: "multiple-choice"
+      libelle: "Analyse du Marché Européen des Technologies",
+      summaryLength: "detailed",
+      summaryType: "business",
+      language: "fr",
+      focusArea: "Analyse concurrentielle et opportunités de marché",
+      outputFormat: "report",
+      createdAt: new Date('2024-12-05'),
+      wordCount: 3124,
+      readTime: 14,
+      isBookmarked: false,
+      tags: ["market", "europe", "technology"],
+      status: "completed"
     },
     {
       id: 5,
-      question: "Which React patterns are used for sharing logic between components?",
-      options: [
-        "Higher-Order Components (HOC)",
-        "Render Props",
-        "Custom Hooks",
-        "Context API"
-      ],
-      type: "multiple-select"
+      libelle: "Sustainable Software Development Practices",
+      summaryLength: "medium",
+      summaryType: "technical",
+      language: "en",
+      focusArea: "Green coding and environmental impact reduction",
+      outputFormat: "text",
+      createdAt: new Date('2024-12-01'),
+      wordCount: 1678,
+      readTime: 8,
+      isBookmarked: true,
+      tags: ["sustainability", "development", "green-tech"],
+      status: "completed"
     },
     {
       id: 6,
-      question: "What is the virtual DOM in React?",
-      options: [
-        "A direct representation of the browser DOM",
-        "A JavaScript representation of the real DOM kept in memory",
-        "A server-side rendering technique",
-        "A CSS-in-JS library"
-      ],
-      type: "multiple-choice"
-    },
-    {
-      id: 7,
-      question: "Which Next.js features help with performance optimization?",
-      options: [
-        "Automatic code splitting",
-        "Image optimization",
-        "Static generation",
-        "Server-side rendering"
-      ],
-      type: "multiple-select"
-    },
-    {
-      id: 8,
-      question: "React components must always return a single element.",
-      options: ["True", "False"],
-      type: "true-false"
+      libelle: "Healthcare Innovation Policy Framework",
+      summaryLength: "brief",
+      summaryType: "general",
+      language: "en",
+      focusArea: "Digital health transformation and patient outcomes",
+      outputFormat: "bullets",
+      createdAt: new Date('2024-11-28'),
+      wordCount: 756,
+      readTime: 3,
+      isBookmarked: false,
+      tags: ["healthcare", "policy", "innovation"],
+      status: "completed"
     }
   ];
 
-  const handleAnswerSelect = (questionId, answerIndex) => {
-    const question = questions.find(q => q.id === questionId);
-    
-    if (question.type === 'multiple-select') {
-      const currentAnswers = userAnswers[questionId] || [];
-      let newAnswers;
+  useEffect(() => {
+    setSummaries(mockSummaries);
+    setFilteredSummaries(mockSummaries);
+  }, []);
+
+  useEffect(() => {
+    let filtered = summaries.filter(summary => {
+      const matchesSearch = summary.libelle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           summary.focusArea.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           summary.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesType = filterType === 'all' || summary.summaryType === filterType;
+      const matchesLength = filterLength === 'all' || summary.summaryLength === filterLength;
       
-      if (currentAnswers.includes(answerIndex)) {
-        newAnswers = currentAnswers.filter(ans => ans !== answerIndex);
-      } else {
-        newAnswers = [...currentAnswers, answerIndex];
+      return matchesSearch && matchesType && matchesLength;
+    });
+
+    filtered.sort((a, b) => {
+      let aValue = a[sortBy];
+      let bValue = b[sortBy];
+      
+      if (sortBy === 'createdAt') {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
       }
       
-      setUserAnswers(prev => ({
-        ...prev,
-        [questionId]: newAnswers
-      }));
-    } else {
-      setUserAnswers(prev => ({
-        ...prev,
-        [questionId]: answerIndex
-      }));
-    }
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredSummaries(filtered);
+  }, [summaries, searchTerm, filterType, filterLength, sortBy, sortOrder]);
+
+  const getTypeConfig = (type) => {
+    const configs = {
+      business: { 
+        color: 'bg-gradient-to-r from-blue-500 to-blue-600', 
+        textColor: 'text-white',
+        icon: <TrendingUp className="w-3 h-3" />
+      },
+      academic: { 
+        color: 'bg-gradient-to-r from-purple-500 to-purple-600', 
+        textColor: 'text-white',
+        icon: <Star className="w-3 h-3" />
+      },
+      technical: { 
+        color: 'bg-gradient-to-r from-green-500 to-green-600', 
+        textColor: 'text-white',
+        icon: <FileText className="w-3 h-3" />
+      },
+      general: { 
+        color: 'bg-gradient-to-r from-gray-500 to-gray-600', 
+        textColor: 'text-white',
+        icon: <Globe className="w-3 h-3" />
+      }
+    };
+    return configs[type] || configs.general;
   };
 
-  const getAnsweredCount = () => {
-    return Object.keys(userAnswers).length;
+  const getLengthConfig = (length) => {
+    const configs = {
+      brief: { color: 'bg-emerald-50 border-emerald-200', textColor: 'text-emerald-700' },
+      medium: { color: 'bg-amber-50 border-amber-200', textColor: 'text-amber-700' },
+      detailed: { color: 'bg-rose-50 border-rose-200', textColor: 'text-rose-700' }
+    };
+    return configs[length] || configs.brief;
   };
 
-  const getCompletionPercentage = () => {
-    return Math.round((getAnsweredCount() / questions.length) * 100);
+  const formatDate = (date) => {
+    const now = new Date();
+    const diffTime = Math.abs(now - new Date(date));
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays <= 7) return `${diffDays} days ago`;
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
+
+  const toggleBookmark = (id) => {
+    setSummaries(prev => prev.map(summary => 
+      summary.id === id ? { ...summary, isBookmarked: !summary.isBookmarked } : summary
+    ));
+  };
+
+  const StatCard = ({ title, value, icon, color }) => (
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+        </div>
+        <div className={`p-3 rounded-xl ${color}`}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/3 to-purple-600/3"></div>
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 rounded-2xl mr-6 shadow-lg">
-                <BookOpen className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">React & Next.js Quiz</h1>
-                <p className="text-gray-600 text-sm">Test your knowledge with 8 comprehensive questions</p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      {/* Header with gradient background */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">AI Summaries</h1>
+              <p className="text-indigo-100 text-lg">Intelligent content analysis at your fingertips</p>
             </div>
-            <div className="text-right">
-              <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{getAnsweredCount()}/{questions.length}</div>
-              <div className="text-xs text-gray-500 uppercase tracking-wider">Completed</div>
-            </div>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="mt-6 relative">
-            <div className="flex justify-between text-xs text-gray-600 mb-2">
-              <span className="font-medium">Progress</span>
-              <span className="font-bold">{getCompletionPercentage()}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 shadow-inner">
-              <div 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-500 shadow-sm"
-                style={{ width: `${getCompletionPercentage()}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Questions */}
-        <div className="space-y-6">
-          {questions.map((question, index) => (
-            <div key={question.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 relative overflow-hidden group hover:shadow-xl transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 to-purple-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative mb-6">
-                <div className="flex items-center mb-4">
-                  <div className="bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 shadow-sm">
-                    {index + 1}
-                  </div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-100 px-3 py-1 rounded-full">
-                    {question.type.replace('-', ' ')}
-                  </span>
-                </div>
-                <h2 className="text-lg font-semibold text-gray-900 leading-relaxed mb-2">
-                  {question.question}
-                </h2>
-                {question.type === 'multiple-select' && (
-                  <p className="text-xs text-gray-500 flex items-center">
-                    <Check className="w-3 h-3 mr-2 text-blue-600" />
-                    Select all that apply
-                  </p>
-                )}
-              </div>
-
-              {/* Options */}
-              <div className="space-y-3 relative">
-                {question.options.map((option, optionIndex) => {
-                  const isSelected = question.type === 'multiple-select' 
-                    ? userAnswers[question.id]?.includes(optionIndex) 
-                    : userAnswers[question.id] === optionIndex;
-                  
-                  return (
-                    <button
-                      key={optionIndex}
-                      onClick={() => handleAnswerSelect(question.id, optionIndex)}
-                      className={`w-full p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-[1.01] hover:shadow-md text-left group ${
-                        isSelected 
-                          ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-400 text-blue-900 shadow-md' 
-                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center transition-all duration-200 ${
-                          isSelected ? 'border-blue-500 bg-blue-500 shadow-sm' : 'border-gray-300 group-hover:border-gray-400'
-                        }`}>
-                          {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
-                        </div>
-                        <span className="font-medium text-sm">{option}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom Actions */}
-        <div className="mt-8 bg-white rounded-2xl shadow-lg border border-gray-100 p-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-50/30 to-blue-50/30"></div>
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center text-gray-600">
-              <Clock className="w-4 h-4 mr-2 text-blue-600" />
-              <span className="text-sm font-medium">No time limit • Take your time</span>
-            </div>
-            <div className="flex space-x-3">
-              <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium hover:shadow-md text-sm">
-                Save Progress
+            <div className="flex items-center gap-4">
+              <button className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:bg-white/30 transition-all duration-200 border border-white/30">
+                <Archive className="w-5 h-5 inline mr-2" />
+                Archive
               </button>
-              <button className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
-                Submit Quiz
+              <button className="bg-white text-indigo-600 px-6 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-lg font-medium">
+                <Plus className="w-5 h-5 inline mr-2" />
+                Create Summary
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      <div className="max-w-7xl mx-auto px-6 -mt-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <StatCard 
+            title="Total Summaries" 
+            value={summaries.length} 
+            icon={<FileText className="w-6 h-6 text-white" />}
+            color="bg-gradient-to-r from-blue-500 to-blue-600"
+          />
+          <StatCard 
+            title="This Month" 
+            value={summaries.filter(s => new Date(s.createdAt).getMonth() === new Date().getMonth()).length} 
+            icon={<Calendar className="w-6 h-6 text-white" />}
+            color="bg-gradient-to-r from-green-500 to-green-600"
+          />
+          <StatCard 
+            title="Bookmarked" 
+            value={summaries.filter(s => s.isBookmarked).length} 
+            icon={<Bookmark className="w-6 h-6 text-white" />}
+            color="bg-gradient-to-r from-purple-500 to-purple-600"
+          />
+          <StatCard 
+            title="Total Words" 
+            value={summaries.reduce((acc, s) => acc + s.wordCount, 0).toLocaleString()} 
+            icon={<TrendingUp className="w-6 h-6 text-white" />}
+            color="bg-gradient-to-r from-pink-500 to-pink-600"
+          />
+        </div>
+
+        {/* Enhanced Search and Filters */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search summaries, tags, or focus areas..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+                />
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-4 py-3 rounded-xl border transition-all duration-200 ${
+                  showFilters ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <Filter className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">View:</span>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
+                  <div className="bg-current rounded-sm"></div>
+                  <div className="bg-current rounded-sm"></div>
+                  <div className="bg-current rounded-sm"></div>
+                  <div className="bg-current rounded-sm"></div>
+                </div>
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <div className="w-4 h-4 flex flex-col gap-0.5">
+                  <div className="bg-current h-0.5 rounded-sm"></div>
+                  <div className="bg-current h-0.5 rounded-sm"></div>
+                  <div className="bg-current h-0.5 rounded-sm"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+              >
+                <option value="all">All Types</option>
+                <option value="business">Business</option>
+                <option value="academic">Academic</option>
+                <option value="technical">Technical</option>
+                <option value="general">General</option>
+              </select>
+
+              <select
+                value={filterLength}
+                onChange={(e) => setFilterLength(e.target.value)}
+                className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+              >
+                <option value="all">All Lengths</option>
+                <option value="brief">Brief</option>
+                <option value="medium">Medium</option>
+                <option value="detailed">Detailed</option>
+              </select>
+
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split('-');
+                  setSortBy(field);
+                  setSortOrder(order);
+                }}
+                className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+              >
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
+                <option value="libelle-asc">Title A-Z</option>
+                <option value="libelle-desc">Title Z-A</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Results Summary */}
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-gray-600">
+            <span className="font-medium text-gray-900">{filteredSummaries.length}</span> of {summaries.length} summaries
+          </p>
+          {selectedSummaries.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">{selectedSummaries.length} selected</span>
+              <button className="text-sm text-indigo-600 hover:text-indigo-700">Delete</button>
+            </div>
+          )}
+        </div>
+
+        {/* Enhanced Summaries Display */}
+        <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6' : 'space-y-4'}>
+          {filteredSummaries.map((summary) => {
+            const typeConfig = getTypeConfig(summary.summaryType);
+            const lengthConfig = getLengthConfig(summary.summaryLength);
+            
+            return (
+              <div key={summary.id} className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group ${viewMode === 'list' ? 'flex items-center p-6' : 'p-6'}`}>
+                {/* Card Header */}
+                <div className={`${viewMode === 'list' ? 'flex-1' : 'mb-4'}`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className={`font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors ${viewMode === 'list' ? 'text-lg' : 'text-lg mb-2'} line-clamp-2`}>
+                        {summary.libelle}
+                      </h3>
+                      <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {summary.readTime} min read
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {formatDate(summary.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <button
+                        onClick={() => toggleBookmark(summary.id)}
+                        className={`p-2 rounded-lg transition-all duration-200 ${
+                          summary.isBookmarked 
+                            ? 'text-amber-500 bg-amber-50 hover:bg-amber-100' 
+                            : 'text-gray-400 hover:text-amber-500 hover:bg-amber-50'
+                        }`}
+                      >
+                        <Bookmark className={`w-4 h-4 ${summary.isBookmarked ? 'fill-current' : ''}`} />
+                      </button>
+                      <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Enhanced Tags and Badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${typeConfig.color} ${typeConfig.textColor} flex items-center gap-1`}>
+                      {typeConfig.icon}
+                      {summary.summaryType}
+                    </span>
+                    <span className={`px-3 py-1 text-xs font-medium rounded-full border ${lengthConfig.color} ${lengthConfig.textColor}`}>
+                      {summary.summaryLength}
+                    </span>
+                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 flex items-center gap-1">
+                      <Globe className="w-3 h-3" />
+                      {summary.language.toUpperCase()}
+                    </span>
+                  </div>
+
+                  {/* Focus Area */}
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                    <span className="font-medium text-gray-800">Focus:</span> {summary.focusArea}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {summary.tags.map((tag, index) => (
+                      <span key={index} className="px-2 py-1 text-xs bg-indigo-50 text-indigo-600 rounded-md">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Enhanced Actions */}
+                <div className={`${viewMode === 'list' ? 'flex items-center gap-2' : 'flex items-center justify-between pt-4 border-t border-gray-100'}`}>
+                  <div className="flex items-center gap-1">
+                    <button className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200">
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200">
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    <span className="font-medium">{summary.wordCount.toLocaleString()}</span> words
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Enhanced Empty State */}
+        {filteredSummaries.length === 0 && (
+          <div className="text-center py-16">
+            <div className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+              <FileText className="w-10 h-10 text-indigo-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No summaries found</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {searchTerm || filterType !== 'all' || filterLength !== 'all' 
+                ? 'Try adjusting your search terms or filters to find what you\'re looking for.'
+                : 'Create your first AI-powered summary to get started with intelligent content analysis.'
+              }
+            </p>
+            <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg">
+              <Plus className="w-5 h-5 inline mr-2" />
+              Create Your First Summary
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default ModernQuizInterface;
+export default SummariesList;
