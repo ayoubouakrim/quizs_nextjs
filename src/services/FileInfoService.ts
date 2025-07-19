@@ -1,5 +1,6 @@
 import { SummaryPrompt } from "@/model/SummaryPrompt";
 import { ApiClient } from "./ApiClient";
+import { FlashCardSetPrompt } from "@/model/FlashCardSetPrompt";
 
 export class FileInfoService {
 
@@ -47,6 +48,22 @@ export class FileInfoService {
             console.error("Error generating summary:", error);
             throw new Error('Failed to generate summary');
         }
+    }
+
+    async generateFlashCards(formData: FlashCardSetPrompt): Promise<any> {
+        const realFormData = new FormData();
+        realFormData.append('file', formData.file as File);
+        realFormData.append('title', formData.title);
+        realFormData.append('description', formData.description);
+        realFormData.append('difficulty', formData.difficulty);
+        realFormData.append('selectedCardTypes', formData.selectedCardTypes.join(','));
+
+        const response = await this.apiClient.postFile('/flashcards/generate', realFormData);
+        if (!response.ok) {
+            throw new Error('Failed to generate flashcards');
+        }
+
+        return response;
     }
 
 
