@@ -1,4 +1,5 @@
 import { AlertCircle, Brain, CheckCircle, FileText, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 
 
@@ -79,8 +80,20 @@ const ProcessingComponent = ({ processingStatus, fileName }: ProcessingComponent
     const config = getStatusConfig();
     const isProcessing = processingStatus === 'preprocessing' || processingStatus === 'generating';
 
+    const router = useRouter();
+
+    const gotoFlashCards = () => {
+        if (processingStatus === 'completed') {
+            
+            const flashCards = JSON.parse(localStorage.getItem('flashcards') || '[]');
+            const id = flashCards.id;
+            localStorage.removeItem('flashcards');
+            router.push(`/flashcards/${id}`);
+        }
+    };
+
     return (
-        <div className="max-w-4xl mx-auto ">
+        <div className="max-w-4xl mx-auto px-4">
             <div className={`${config.bgColor} border ${config.borderColor} rounded-2xl p-6`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Left Column - Animation */}
@@ -175,7 +188,8 @@ const ProcessingComponent = ({ processingStatus, fileName }: ProcessingComponent
                         {/* Action buttons */}
                         <div className="pt-2">
                             {processingStatus === 'completed' && (
-                                <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-xl transition-colors shadow-sm">
+                                <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-xl transition-colors shadow-sm"
+                                        onClick={() => gotoFlashCards()}>
                                     View Flashcards
                                 </button>
                             )}

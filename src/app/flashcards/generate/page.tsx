@@ -181,6 +181,7 @@ export default function FlashcardGenerator() {
             const service = new FileInfoService();
             const response = await service.generateFlashCards(formData);
             console.log('Flashcards generated successfully:', response);
+            localStorage.setItem('flashcards', JSON.stringify(response));
 
             setProcessingStatus('completed')
         } catch (error) {
