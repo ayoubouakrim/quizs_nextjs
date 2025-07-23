@@ -148,11 +148,11 @@ export default function FlashcardGenerator() {
 
     };
 
-    const handleInputChange = (field, value) => {
+    const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleCardTypeToggle = (typeId) => {
+    const handleCardTypeToggle = (typeId: string) => {
         setFormData(prev => ({
             ...prev,
             selectedCardTypes: prev.selectedCardTypes.includes(typeId)
@@ -167,16 +167,22 @@ export default function FlashcardGenerator() {
             return;
         }
 
-        setProcessingStatus('processing');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        setProcessingStatus('preprocessing');
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         try {
             setProcessingStatus('generating');
 
             const service = new FileInfoService();
             const response = await service.generateFlashCards(formData);
+            console.log('Flashcards generated successfully:', response);
 
-            setProcessingStatus('complete')
+            setProcessingStatus('completed')
         } catch (error) {
             console.error('Error generating flash cards:', error);
             setProcessingStatus('error');
@@ -190,7 +196,7 @@ export default function FlashcardGenerator() {
         <div className="min-h-screen bg-gray-50">
             <NavBar />
             {/* Header */}
-            <header className="bg-white shadow-sm border-b border-gray-200">
+            <header className="bg-white shadow-sm border-b border-gray-200 mb-3">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center space-x-3">
                         <div>
@@ -205,7 +211,8 @@ export default function FlashcardGenerator() {
                 <ProcessingComponent processingStatus={processingStatus} fileName={fileName} />
             )}
 
-            <div className="max-w-4xl mx-auto space-y-6 mt-6 px-4">
+
+            <div className="max-w-4xl mx-auto space-y-6 mt-3 px-4">
                 {/* File Upload Section */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                     <div className="flex items-center mb-4">
@@ -429,20 +436,18 @@ export default function FlashcardGenerator() {
                     )}
                 </div>
 
-                {processingStatus !== '' && (
-                    <ProcessingComponent processingStatus={processingStatus} fileName={fileName} />
-                )}
+
 
                 {/* Submit Button */}
                 <div className="flex justify-end pb-8">
                     <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={!formData.file || !formData.title || formData.selectedCardTypes.length === 0}
+                        disabled={!formData.file || !formData.title || formData.selectedCardTypes.length === 0 || processingStatus !== ''}
                         className="inline-flex  items-center px-8 py-3 bg-sky-500 text-white font-semibold rounded-xl hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                     >
                         <Sparkles className="w-5 h-5 mr-2" />
-                        {processingStatus ? 'Processing...' : 'Generate Flashcards'}
+                        {processingStatus ? processingStatus : 'Generate Flashcards'}
                     </button>
                 </div>
             </div>

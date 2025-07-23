@@ -5,5 +5,6 @@ export interface FlashCardSet {
     difficulty: string;
     totalCards: number;
     createdAt: Date;
+    
 
 }

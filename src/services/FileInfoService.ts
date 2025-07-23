@@ -1,6 +1,7 @@
 import { SummaryPrompt } from "@/model/SummaryPrompt";
 import { ApiClient } from "./ApiClient";
 import { FlashCardSetPrompt } from "@/model/FlashCardSetPrompt";
+import { FlashCardSet } from "@/model/FlashCardSet";
 
 export class FileInfoService {
 
@@ -59,11 +60,17 @@ export class FileInfoService {
         realFormData.append('selectedCardTypes', formData.selectedCardTypes.join(','));
 
         const response = await this.apiClient.postFile('/flashcards/generate', realFormData);
+        console.log("Response from flashcard generation:", response);
+        console.log("Response status:", response.status);
+        console.log("Response ok status:", response.ok);
         if (!response.ok) {
             throw new Error('Failed to generate flashcards');
         }
 
-        return response;
+        const flashCards = await response.json(); 
+        console.log("Flashcards generated:", flashCards);
+
+        return flashCards;
     }
 
 

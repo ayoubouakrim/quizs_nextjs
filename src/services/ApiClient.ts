@@ -68,7 +68,7 @@ export class ApiClient {
             throw new Error(`POST request failed: ${response.statusText}`);
         }
 
-        return response.json();
+        return response;
     }
         
 }

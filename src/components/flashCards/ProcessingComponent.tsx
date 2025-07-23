@@ -1,7 +1,14 @@
 import { AlertCircle, Brain, CheckCircle, FileText, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react"
 
-const ProcessingComponent = ({ processingStatus, fileName, progress = 0 }) => {
+
+
+interface ProcessingComponentProps {
+    processingStatus: string;
+    fileName?: string;
+    }
+
+const ProcessingComponent = ({ processingStatus, fileName }: ProcessingComponentProps) => {
     const [dots, setDots] = useState('');
 
     // Animated dots effect
@@ -73,7 +80,7 @@ const ProcessingComponent = ({ processingStatus, fileName, progress = 0 }) => {
     const isProcessing = processingStatus === 'preprocessing' || processingStatus === 'generating';
 
     return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-4xl mx-auto ">
             <div className={`${config.bgColor} border ${config.borderColor} rounded-2xl p-6`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Left Column - Animation */}
