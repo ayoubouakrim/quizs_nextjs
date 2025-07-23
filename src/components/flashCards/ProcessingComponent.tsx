@@ -1,4 +1,3 @@
-"use client"
 import { AlertCircle, Brain, CheckCircle, FileText, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react"
 
@@ -74,7 +73,7 @@ const ProcessingComponent = ({ processingStatus, fileName, progress = 0 }) => {
     const isProcessing = processingStatus === 'preprocessing' || processingStatus === 'generating';
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className={`${config.bgColor} border ${config.borderColor} rounded-2xl p-6`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Left Column - Animation */}
@@ -187,44 +186,4 @@ const ProcessingComponent = ({ processingStatus, fileName, progress = 0 }) => {
     );
 };
 
-
-// Demo component to show different states
-const ProcessingDemo = () => {
-  const [currentStatus, setCurrentStatus] = useState('');
-  const [fileName, setFileName] = useState('Biology Chapter 12.pdf');
-
-  const statuses = ['', 'preprocessing', 'generating', 'completed', 'error'];
-  const statusNames = ['Idle', 'Preprocessing', 'Generating', 'Completed', 'Error'];
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Flashcard Processing Interface</h1>
-          <div className="flex justify-center space-x-2 flex-wrap">
-            {statuses.map((status, index) => (
-              <button
-                key={status}
-                onClick={() => setCurrentStatus(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  currentStatus === status
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                {statusNames[index]}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <ProcessingComponent 
-          processingStatus={currentStatus}
-          fileName={fileName}
-        />
-      </div>
-    </div>
-  );
-};
-
-export default ProcessingDemo;
+export default ProcessingComponent;

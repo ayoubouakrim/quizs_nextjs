@@ -23,6 +23,9 @@ import {
 import NavBar from '@/components/layout/navBar';
 import { FileInfoService } from '@/services/FileInfoService';
 import { FlashCardSetPrompt } from '@/model/FlashCardSetPrompt';
+import { resolve } from 'path';
+import ProcessingComponent from '@/components/flashCards/ProcessingComponent';
+import Footer from '@/components/layout/footer';
 
 export default function FlashcardGenerator() {
     const [formData, setFormData] = useState<FlashCardSetPrompt>({
@@ -33,14 +36,14 @@ export default function FlashcardGenerator() {
         difficulty: 'intermediate',
         totalCards: 20,
         selectedCardTypes: ['definition', 'example', 'concept']
-        
+
     });
 
     const [fileName, setFileName] = useState('');
     const [fileSize, setFileSize] = useState('');
     const [dragActive, setDragActive] = useState(false);
     const [processingStatus, setProcessingStatus] = useState('');
-    const [uploadProgress, setUploadProgress] = useState(0);
+
 
     const fileInputRef = useRef(null);
 
@@ -89,7 +92,7 @@ export default function FlashcardGenerator() {
         { value: 'advanced', label: 'Advanced', desc: 'Complex concepts requiring deep understanding' }
     ];
 
-    const formatFileSize = (bytes) => {
+    const formatFileSize = (bytes: any) => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -97,7 +100,7 @@ export default function FlashcardGenerator() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    const handleDrag = (e) => {
+    const handleDrag = (e: any) => {
         e.preventDefault();
         e.stopPropagation();
         if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -107,7 +110,7 @@ export default function FlashcardGenerator() {
         }
     };
 
-    const handleDrop = (e) => {
+    const handleDrop = (e: any) => {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
@@ -117,7 +120,7 @@ export default function FlashcardGenerator() {
         }
     };
 
-    const handleFileSelect = (selectedFile) => {
+    const handleFileSelect = (selectedFile: any) => {
         if (selectedFile) {
             const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/markdown'];
 
@@ -142,7 +145,7 @@ export default function FlashcardGenerator() {
         setFileName('');
         setFileSize('');
         setProcessingStatus('');
-        setUploadProgress(0);
+
     };
 
     const handleInputChange = (field, value) => {
@@ -164,31 +167,23 @@ export default function FlashcardGenerator() {
             return;
         }
 
-        const service = new FileInfoService();
-        const response = await service.generateFlashCards(formData);
+        setProcessingStatus('processing');
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-        if (response) {
-            console.log('Quiz generated successfully:', response);
-            // Redirect or show success message
-        } else {
-            console.error('Failed to generate quiz');
-            // Show error message
+        try {
+            setProcessingStatus('generating');
+
+            const service = new FileInfoService();
+            const response = await service.generateFlashCards(formData);
+
+            setProcessingStatus('complete')
+        } catch (error) {
+            console.error('Error generating flash cards:', error);
+            setProcessingStatus('error');
+            alert('An error occurred while processing your request. Please try again.');
         }
-
-        
-
-        // Simulate upload progress
-        const progressInterval = setInterval(() => {
-            setUploadProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(progressInterval);
-                    setProcessingStatus('processing');
-                    return 100;
-                }
-                return prev + 10;
-            });
-        }, 200);
     };
+
 
 
     return (
@@ -206,6 +201,10 @@ export default function FlashcardGenerator() {
                 </div>
             </header>
 
+            {processingStatus !== '' && (
+                <ProcessingComponent processingStatus={processingStatus} fileName={fileName} />
+            )}
+
             <div className="max-w-4xl mx-auto space-y-6 mt-6 px-4">
                 {/* File Upload Section */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
@@ -219,8 +218,8 @@ export default function FlashcardGenerator() {
                     {!fileName ? (
                         <div
                             className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${dragActive
-                                    ? 'border-sky-400 bg-sky-50 scale-[1.01]'
-                                    : 'border-gray-300 hover:border-sky-300 hover:bg-gray-50'
+                                ? 'border-sky-400 bg-sky-50 scale-[1.01]'
+                                : 'border-gray-300 hover:border-sky-300 hover:bg-gray-50'
                                 }`}
                             onDragEnter={handleDrag}
                             onDragLeave={handleDrag}
@@ -399,14 +398,14 @@ export default function FlashcardGenerator() {
                                     key={type.id}
                                     onClick={() => handleCardTypeToggle(type.id)}
                                     className={`p-4 rounded-2xl border-2 transition-all text-left transform hover:scale-[1.02] ${isSelected
-                                            ? 'border-sky-400 bg-sky-50 shadow-sm'
-                                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 shadow-sm'
+                                        ? 'border-sky-400 bg-sky-50 shadow-sm'
+                                        : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 shadow-sm'
                                         }`}
                                 >
                                     <div className="flex items-center justify-between mb-3">
                                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-white ${isSelected
-                                                ? 'bg-sky-500'
-                                                : 'bg-gray-400'
+                                            ? 'bg-sky-500'
+                                            : 'bg-gray-400'
                                             }`}>
                                             {type.icon}
                                         </div>
@@ -430,6 +429,10 @@ export default function FlashcardGenerator() {
                     )}
                 </div>
 
+                {processingStatus !== '' && (
+                    <ProcessingComponent processingStatus={processingStatus} fileName={fileName} />
+                )}
+
                 {/* Submit Button */}
                 <div className="flex justify-end pb-8">
                     <button
@@ -443,6 +446,10 @@ export default function FlashcardGenerator() {
                     </button>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }
+
+
+
