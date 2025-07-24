@@ -18,4 +18,14 @@ export class FlashCardSetService {
         }
     }
 
+    async getFlashCardSetById(id: string): Promise<any> {
+        try {
+            const response = await this.apiClient.get(`/flashcards/id/${id}`);
+            return response;
+        } catch (error) {
+            console.error("Error fetching flash card set by ID:", error);
+            throw new Error('Failed to fetch flash card set');
+        }
+    }
+
 }
