@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     GraduationCap,
     BarChart3,
@@ -16,14 +16,30 @@ import {
     PenTool,
     MoreVertical,
     Bell,
-    Book
+    Book,
+    ArrowRight
 } from 'lucide-react';
 import NavBar from '@/components/layout/navBar';
 import Footer from '@/components/layout/footer';
 import { useRouter } from 'next/navigation';
+import { QuizService } from '@/services/QuizService';
+import { SummaryService } from '@/services/SummaryService';
+import { FlashCardSetService } from '@/services/FlashCardSetService';
+import { Quiz } from '@/model/Quiz';
+import { Summary } from '@/model/Summary';
+import { FlashCardSet } from '@/model/FlashCardSet';
+import { FileInfoService } from '@/services/FileInfoService';
 
 const ImprovedNavbar = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const quizService = new QuizService();
+    const summaryService = new SummaryService();
+    const flashcardService = new FlashCardSetService();
+    const fileService = new FileInfoService();
+
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [files, setFiles] = useState([]);
+    const [summaries, setSummaries] = useState<Summary[]>([]);
+    const [flashCardSets, setFlashCardSets] = useState<FlashCardSet[]>([]);
     const [activeDropdown, setActiveDropdown] = useState(null);
 
     const router = useRouter();
@@ -50,19 +66,52 @@ const ImprovedNavbar = () => {
         { action: "Uploaded file", file: "React Components.md", time: "1 day ago", type: "upload" }
     ];
 
+    const getDifficultyColor = (difficulty: string) => {
+    switch(difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-700';
+      case 'Medium': return 'bg-yellow-100 text-yellow-700';
+      case 'Hard': return 'bg-red-100 text-red-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-        setActiveDropdown(null);
-    };
+  const getTypeColor = (type: string) => {
+    switch(type) {
+      case 'Tutorial': return 'bg-blue-100 text-blue-700';
+      case 'Guide': return 'bg-purple-100 text-purple-700';
+      case 'Documentation': return 'bg-orange-100 text-orange-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
 
-    const toggleDropdown = (dropdown: any) => {
-        setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
-    };
 
-    const closeDropdowns = () => {
-        setActiveDropdown(null);
-    };
+    useEffect(() => {
+        quizService.getAllQuizzes()
+            .then(quizzes => {
+                const latestQuizzes = quizzes
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 5);
+
+                setQuizzes(latestQuizzes);
+            })
+        summaryService.getAllSummaries()
+            .then(summaries => {
+                const latestSummaries = summaries
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 5);
+
+                setSummaries(latestSummaries);
+            })
+        flashcardService.getAllFlashCardSets()
+            .then(flashCardSets => {
+                const latestFlashCardSets = flashCardSets
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 5);
+
+                setFlashCardSets(latestFlashCardSets);
+            })
+
+    }, []);
 
     return (
 
@@ -73,17 +122,17 @@ const ImprovedNavbar = () => {
                     <div className="space-y-6">
                         {/* Welcome Banner */}
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                                Hello, welcome to the EduAI Dashboard!
+                            <h1 className="text-xl font-bold text-gray-900 ">
+                                Hello Username, welcome to your Dashboard!
                             </h1>
-                            <p className="text-gray-600 mb=4">
+                            <p className="text-gray-600">
                                 Ready to transform your educational content with AI? Upload a file to get started.
                             </p>
 
                             {/* quick Actions */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
                                 <button
-                                    onClick={() => router.push('/generate-quiz')}
+                                    onClick={() => router.push('/quiz/generate')}
                                     className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 group"
                                 >
                                     <div className="p-2 bg-blue-100 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
@@ -95,7 +144,7 @@ const ImprovedNavbar = () => {
                                     </div>
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('summaries')}
+                                    onClick={() => router.push('/summary/generate')}
                                     className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-sm transition-all duration-200 group"
                                 >
                                     <div className="p-2 bg-green-100 rounded-lg mr-3 group-hover:bg-green-200 transition-colors">
@@ -107,15 +156,15 @@ const ImprovedNavbar = () => {
                                     </div>
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('exercises')}
+                                    onClick={() => router.push('flashcards/generate')}
                                     className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-orange-300 hover:shadow-sm transition-all duration-200 group"
                                 >
                                     <div className="p-2 bg-orange-100 rounded-lg mr-3 group-hover:bg-orange-200 transition-colors">
-                                        <BookOpen className="h-4 w-4 text-orange-600" />
+                                        <Book className="h-4 w-4 text-orange-600" />
                                     </div>
                                     <div className="text-left">
-                                        <p className="font-medium text-gray-900 text-sm">Create Exercise</p>
-                                        <p className="text-xs text-gray-500">Build interactive exercises</p>
+                                        <p className="font-medium text-gray-900 text-sm">Create FlashCard</p>
+                                        <p className="text-xs text-gray-500">Build interactive flashcards</p>
                                     </div>
 
                                 </button>
@@ -144,21 +193,115 @@ const ImprovedNavbar = () => {
                             })}
                         </div>
 
-                        {/* File Upload */}
-                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
-                            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">Upload your educational content</h3>
-                            <p className="text-gray-500 mb-4">Drag and drop files here, or click to select</p>
-                            <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-400">
-                                <span className="px-2 py-1 bg-gray-100 rounded">PDF</span>
-                                <span className="px-2 py-1 bg-gray-100 rounded">DOCX</span>
-                                <span className="px-2 py-1 bg-gray-100 rounded">TXT</span>
-                                <span className="px-2 py-1 bg-gray-100 rounded">MD</span>
+                        {/* Latest Quizzes and Flashcards */}
+                        <div className='grid lg:grid-cols-2 gap-3'>
+                            {/* Latest Quizzes */}
+                            <div className="bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                                    <h3 className="font-semibold text-gray-900">Latest Quizzes</h3>
+                                    <button onClick={() => router.push('/quiz/list')} className="text-xs text-purple-600 hover:text-purple-800 font-medium">
+                                        View All →
+                                    </button>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    {quizzes.map((quiz, index) => (
+                                        <button onClick={() => router.push(`/quiz/${quiz.id}`)} className="w-full" key={index}>
+                                        <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg group">
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                                    <Brain className="h-4 w-4 text-purple-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">{quiz.libelle}</p>
+                                                    <div className="flex items-center space-x-2 mt-1">
+                                                        <p className="text-xs text-gray-500">{new Date(quiz.createdAt).toLocaleDateString()}</p>
+                                                        <span className="text-xs text-gray-300">•</span>
+                                                        <span className="text-xs text-purple-600 font-medium">{quiz.nbRepCorrect} questions</span>
+                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(quiz.difficulty)}`}>
+                                                            {quiz.difficulty}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all duration-200" />
+                                        </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {/* Latest Flashcard Sets */}
+                            <div className="bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                                    <h3 className="font-semibold text-gray-900">Latest Flashcards</h3>
+                                    <button onClick={() => router.push('/flashcards/list')} className="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                        View All →
+                                    </button>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    {flashCardSets.map((set, index) => (
+                                        <button onClick={() => router.push(`/flashcards/${set.id}`)} className="w-full" key={index}>
+                                        <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg group">
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                                    <Book className="h-4 w-4 text-blue-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">{set.title}</p>
+                                                    <div className="flex items-center space-x-2 mt-1">
+                                                        <p className="text-xs text-gray-500">{new Date(set.createdAt).toLocaleDateString()}</p>
+                                                        <span className="text-xs text-gray-300">•</span>
+                                                        <span className="text-xs text-blue-600 font-medium">{set.totalCards} cards</span>
+                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(set.difficulty)}`}>
+                                                            {set.difficulty}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-200" />
+                                        </div>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Recent files and activities */}
+                        {/* Recent files and summaries */}
                         <div className="grid lg:grid-cols-2 gap-6">
+                            {/* Latest Summaries */}
+                            <div className="bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                                    <h3 className="font-semibold text-gray-900">Latest Summaries</h3>
+                                    <button onClick={() => router.push('/summary/list')} className="text-xs text-green-600 hover:text-green-800 font-medium">
+                                        View All →
+                                    </button>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    {summaries.map((summary, index) => (
+                                        <button onClick={() => router.push(`/summary/${summary.id}`)} className="w-full" key={index}>
+                                        <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg group">
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                                    <BookOpen className="h-4 w-4 text-green-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">{summary.libelle}</p>
+                                                    <div className="flex items-center space-x-2 mt-1">
+                                                        <p className="text-xs text-gray-500">{new Date(summary.createdAt).toLocaleDateString()}</p>
+                                                        <span className="text-xs text-gray-300">•</span>
+                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getTypeColor(summary.summaryType)}`}>
+                                                            {summary.summaryType}
+                                                        </span>
+                                                        <span className="text-xs text-green-600 font-medium">{summary.language}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-green-600 group-hover:translate-x-1 transition-all duration-200" />
+                                        </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                             {/* Recent Files Section */}
                             <div className="bg-white rounded-lg border border-gray-200">
                                 <div className="p-4 border-b border-gray-200">
@@ -191,31 +334,7 @@ const ImprovedNavbar = () => {
                                     ))}
                                 </div>
                             </div>
-                            {/* Recent Activities Section */}
-                            <div className="bg-white rounded-lg border border-gray-200">
-                                <div className="p-4 border-b border-gray-200">
-                                    <h3 className="font-semibold text-gray-900">Recent Activity</h3>
-                                </div>
-                                <div className="p-4 space-y-3">
-                                    {recentActivity.map((activity, index) => (
-                                        <div key={index} className="flex items-center p-2">
-                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${activity.type === 'quiz' ? 'bg-purple-100' :
-                                                activity.type === 'summary' ? 'bg-green-100' :
-                                                    activity.type === 'exercise' ? 'bg-orange-100' : 'bg-blue-100'
-                                                }`}>
-                                                {activity.type === 'quiz' && <Brain className="h-4 w-4 text-purple-600" />}
-                                                {activity.type === 'summary' && <BookOpen className="h-4 w-4 text-green-600" />}
-                                                {activity.type === 'exercise' && <PenTool className="h-4 w-4 text-orange-600" />}
-                                                {activity.type === 'upload' && <Upload className="h-4 w-4 text-blue-600" />}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                                                <p className="text-xs text-gray-500">{activity.file} • {activity.time}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            
                         </div>
 
 

@@ -1,3 +1,4 @@
+import { FlashCardSet } from "@/model/FlashCardSet";
 import { ApiClient } from "./ApiClient";
 
 export class FlashCardSetService {
@@ -7,7 +8,7 @@ export class FlashCardSetService {
         this.apiClient = new ApiClient('http://localhost:8020/api/v1');
     }
 
-    async getAllFlashCardSets(): Promise<[]> {
+    async getAllFlashCardSets(): Promise<FlashCardSet[]> {
         try {
             const response = await this.apiClient.get('/flashcards/all');
             console.log("data in Service:", JSON.stringify(response));

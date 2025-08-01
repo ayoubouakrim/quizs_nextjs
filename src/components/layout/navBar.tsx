@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { GraduationCap, BarChart3, Brain, FileText, BookOpen, Zap, Upload, Bell, User, Settings, Menu, X } from 'lucide-react';
+import { GraduationCap, BarChart3, Brain, FileText, BookOpen, Zap, Upload, Bell, User, Settings, Menu, X, Book } from 'lucide-react';
 import Link from 'next/link';
 
 const NavBar = () => {
@@ -70,17 +70,17 @@ const NavBar = () => {
                             {activeDropdown === 'aitools' && (
                                 <div className="absolute left-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-gray-100 backdrop-blur-sm z-50">
                                     <div className="py-2">
-                                        <Link href="/generate-quiz" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
+                                        <Link href="/quiz/generate" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
                                             <FileText className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
                                             Quiz Generator
                                         </Link>
-                                        <Link href="/summarizer" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
+                                        <Link href="/summary/generate" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
                                             <BookOpen className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
                                             Summarizer
                                         </Link>
-                                        <Link href="/exercises" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
+                                        <Link href="/flashcards/generate" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
                                             <Zap className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                                            Exercise Builder
+                                            FlashCards Builder
                                         </Link>
                                     </div>
                                 </div>
@@ -184,17 +184,17 @@ const NavBar = () => {
                             AI Tools
                         </div>
                         <div className="ml-6 space-y-1">
-                            <Link href="/generate-quiz" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
+                            <Link href="/quiz/generate" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
                                 <FileText className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
                                 Quiz Generator
                             </Link>
-                            <Link href="/summarizer" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
+                            <Link href="/summary/generate" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
                                 <BookOpen className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
                                 Summarizer
                             </Link>
-                            <Link href="/exercises" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
-                                <Zap className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                                Exercise Builder
+                            <Link href="/flashcards/generate" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
+                                <Book className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                                FlashCards Builder
                             </Link>
                         </div>
                     </div>
