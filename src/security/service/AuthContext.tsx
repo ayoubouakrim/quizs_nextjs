@@ -29,7 +29,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         
         const token = response.accessToken
+        const username = response.username
         localStorage.setItem('token', token)
+        localStorage.setItem('username', username)
+        localStorage.setItem('user', JSON.stringify(user))
         document.cookie = `token=${token}; path=/;`
         setUser(user)
     }

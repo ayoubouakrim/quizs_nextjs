@@ -96,14 +96,42 @@ const NavBar = () => {
                             Upload
                         </Link>
 
-                        {/* Library */}
-                        <Link
-                            href="/library"
-                            className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center group"
-                        >
-                            <BookOpen className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
-                            Library
-                        </Link>
+                        {/* Library Dropdown */}
+                        <div className="relative">
+                            <button
+                                onClick={() => toggleDropdown('library')}
+                                className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center group"
+                            >
+                                <BookOpen className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
+                                Library
+                                <svg
+                                    className={`ml-1 h-3 w-3 transition-transform duration-200 ${activeDropdown === 'library' ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            {activeDropdown === 'library' && (
+                                <div className="absolute left-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-gray-100 backdrop-blur-sm z-50">
+                                    <div className="py-2">
+                                        <Link href="/quiz/list" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
+                                            <FileText className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                                            Quizzes
+                                        </Link>
+                                        <Link href="/summary/list" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
+                                            <BookOpen className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                                            Summaries
+                                        </Link>
+                                        <Link href="/flashcards/list" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 group">
+                                            <Zap className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                                            Flashcards
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -207,13 +235,27 @@ const NavBar = () => {
                         Upload
                     </Link>
 
-                    <Link
-                        href="/library"
-                        className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2.5 rounded-lg text-base font-medium flex items-center transition-all duration-200 group"
-                    >
-                        <BookOpen className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                        Library
-                    </Link>
+                    {/* Mobile Library */}
+                    <div className="space-y-1">
+                        <div className="text-gray-600 px-3 py-2.5 text-base font-medium flex items-center">
+                            <BookOpen className="h-5 w-5 mr-3" />
+                            Library
+                        </div>
+                        <div className="ml-6 space-y-1">
+                            <Link href="/library/quizzes" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
+                                <FileText className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                                Quizzes
+                            </Link>
+                            <Link href="/library/summaries" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
+                                <BookOpen className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                                Summaries
+                            </Link>
+                            <Link href="/library/flashcards" className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 group">
+                                <Zap className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                                Flashcards
+                            </Link>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Mobile user menu */}

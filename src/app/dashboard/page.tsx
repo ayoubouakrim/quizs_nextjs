@@ -39,6 +39,11 @@ const ImprovedNavbar = () => {
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [files, setFiles] = useState([]);
     const [summaries, setSummaries] = useState<Summary[]>([]);
+    const [username, setUsername] = useState<string | null>(null);
+    const [nbrFlash, setNbrFlash] = useState(0);
+    const [nbrQuizzes, setNbrQuizzes] = useState(0);
+    const [nbrSummaries, setNbrSummaries] = useState(0);
+
     const [flashCardSets, setFlashCardSets] = useState<FlashCardSet[]>([]);
     const [activeDropdown, setActiveDropdown] = useState(null);
 
@@ -47,9 +52,9 @@ const ImprovedNavbar = () => {
 
     const stats = [
         { icon: FileText, label: "Documents", value: "12", change: "+3", color: "text-blue-600", bg: "bg-blue-50" },
-        { icon: Brain, label: "Quizzes", value: "48", change: "+12", color: "text-purple-600", bg: "bg-purple-50" },
-        { icon: BookOpen, label: "Summaries", value: "24", change: "+8", color: "text-green-600", bg: "bg-green-50" },
-        { icon: PenTool, label: "Exercises", value: "36", change: "+15", color: "text-orange-600", bg: "bg-orange-50" }
+        { icon: Brain, label: "Quizzes", value: nbrQuizzes, change: "+12", color: "text-purple-600", bg: "bg-purple-50" },
+        { icon: BookOpen, label: "Summaries", value: nbrSummaries, change: "+8", color: "text-green-600", bg: "bg-green-50" },
+        { icon: PenTool, label: "Flashcards", value: nbrFlash, change: "+15", color: "text-orange-600", bg: "bg-orange-50" }
     ];
 
     const recentFiles = [
@@ -91,25 +96,34 @@ const ImprovedNavbar = () => {
                 const latestQuizzes = quizzes
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .slice(0, 5);
+                const nbrQuizzes = quizzes.length;
 
                 setQuizzes(latestQuizzes);
+                setNbrQuizzes(nbrQuizzes);
             })
+            
         summaryService.getAllSummaries()
             .then(summaries => {
                 const latestSummaries = summaries
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .slice(0, 5);
+                const nbrSummaries = summaries.length;
 
                 setSummaries(latestSummaries);
+                setNbrSummaries(nbrSummaries);
             })
         flashcardService.getAllFlashCardSets()
             .then(flashCardSets => {
                 const latestFlashCardSets = flashCardSets
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .slice(0, 5);
+                const nbrFlashCardSets = flashCardSets.length;
 
                 setFlashCardSets(latestFlashCardSets);
+                setNbrFlash(nbrFlashCardSets);
             })
+        
+        setUsername(localStorage.getItem('username'));
 
     }, []);
 
@@ -123,7 +137,7 @@ const ImprovedNavbar = () => {
                         {/* Welcome Banner */}
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
                             <h1 className="text-xl font-bold text-gray-900 ">
-                                Hello Username, welcome to your Dashboard!
+                                Hello {username}, welcome to your Dashboard!
                             </h1>
                             <p className="text-gray-600">
                                 Ready to transform your educational content with AI? Upload a file to get started.
