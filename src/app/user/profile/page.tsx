@@ -11,18 +11,19 @@ const ProfilePage = () => {
     const [formData, setFormData] = useState({
         firstName: 'Sarah',
         lastName: 'Johnson',
-        email: 'sarah.johnson@student.edu',
+        username: 'your username',
+        email: 'your email address',
         phone: '(555) 123-4567',
-        address: '123 College Ave',
-        city: 'Boston',
-        state: 'Massachusetts',
-        zipCode: '02115',
-        country: 'United States',
+        address: 'Your address',
+        city: 'City',
+        state: 'State',
+        zipCode: '9999',
+        country: 'Contry',
         bio: 'Computer Science student passionate about web development and artificial intelligence.'
     });
 
     useEffect(() => {
-        
+
         const user = localStorage.getItem('user');
         setFormData(user ? JSON.parse(user) : formData);
 
@@ -116,7 +117,7 @@ const ProfilePage = () => {
                                 {/* Form */}
                                 <div className="max-w-2xl mx-auto space-y-6">
                                     {/* Name Fields */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 First Name
@@ -137,6 +138,18 @@ const ProfilePage = () => {
                                                 type="text"
                                                 value={formData.lastName}
                                                 onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Username
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.username}
+                                                onChange={(e) => handleInputChange('username', e.target.value)}
                                                 disabled={!isEditing}
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
                                             />

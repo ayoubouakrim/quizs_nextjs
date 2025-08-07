@@ -2,6 +2,7 @@ import { SummaryPrompt } from "@/model/SummaryPrompt";
 import { ApiClient } from "./ApiClient";
 import { FlashCardSetPrompt } from "@/model/FlashCardSetPrompt";
 import { FlashCardSet } from "@/model/FlashCardSet";
+import { ExercisePrompt } from "@/model/ExercisePrompt";
 
 export class FileInfoService {
 
@@ -71,6 +72,20 @@ export class FileInfoService {
         console.log("Flashcards generated:", flashCards);
 
         return flashCards;
+    }
+
+    async generateExerciseSolution(formData: ExercisePrompt): Promise<any> {
+        const realFormData = new FormData();
+        realFormData.append('file', formData.file as File);
+        realFormData.append('subject', formData.subject);
+        realFormData.append('solutionType', formData.solutionType);
+        realFormData.append('userAdds', formData.userAdds);
+
+        const response = await this.apiClient.postFile('/exercise/generate', realFormData);
+        if (!response.ok) {
+            throw new Error('Failed to generate exercise solution');
+        }
+        return response;
     }
 
 
