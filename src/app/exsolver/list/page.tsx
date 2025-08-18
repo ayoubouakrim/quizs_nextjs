@@ -13,7 +13,19 @@ import { ExerciseSubmission } from '@/model/ExerciseSubmission';
 
 // Mock data matching your ExerciseSubmission class structure
 
-const SUBJECT_COLORS = {
+type SubjectColors = {
+    bg: string;
+    text: string;
+    border: string;
+    label: string;
+    icon: JSX.Element;
+}
+
+type SubjectColorsMap = {
+    [key: string]: SubjectColors;
+}
+
+const SUBJECT_COLORS: SubjectColorsMap = {
     "mathematics": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200", label: "Mathematics", icon: <Calculator className="h-4 w-4" /> },
     "physics": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200", label: "Physics", icon: <Zap className="h-4 w-4" /> },
     "chemistry": { bg: "bg-green-100", text: "text-green-700", border: "border-green-200", label: "Chemistry", icon: <BookOpen className="h-4 w-4" /> },
@@ -69,7 +81,7 @@ export default function ExerciseSubmissionsList() {
             filtered = filtered.filter(sub => sub.subject === selectedSubject);
         }
 
-        // Sort
+        // Sor
         filtered.sort((a, b) => {
             if (sortBy === 'date') {
                 // Convert dates to timestamps for comparison
@@ -83,22 +95,23 @@ export default function ExerciseSubmissionsList() {
         setFilteredSubmissions(filtered);
     }, [searchTerm, selectedSubject, sortBy, submissions]);
 
-    const formatDate = (date: Date) => {
-        const now = new Date();
-        // Convert dates to timestamps (milliseconds since epoch)
-        const diffTime = Math.abs(now.getTime() - date.getTime());
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const formatDate = (createdAt: string) => {
+    const date = new Date(createdAt); // convert string to Date
+    const now = new Date();
 
-        if (diffDays === 0) {
-            return `Today at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
-        } else if (diffDays === 1) {
-            return `Yesterday at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
-        } else if (diffDays < 7) {
-            return `${diffDays} days ago`;
-        } else {
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-    };
+    const diffTime = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+        return `Today at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    } else if (diffDays === 1) {
+        return `Yesterday at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    } else if (diffDays < 7) {
+        return `${date.toLocaleDateString('en-US')} at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    } else {
+        return date.toLocaleDateString('en-US');
+    }
+};
 
     const getSubjectColors = (subject: string) => {
         return SUBJECT_COLORS[subject] || SUBJECT_COLORS.other;
@@ -222,7 +235,7 @@ export default function ExerciseSubmissionsList() {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-semibold text-gray-900">
-                                                    {submission.nbrOfExercises}
+                                                    {submission.nbrOfExercises || 5}
                                                 </p>
                                                 <p className="text-xs text-gray-500">Exercises</p>
 

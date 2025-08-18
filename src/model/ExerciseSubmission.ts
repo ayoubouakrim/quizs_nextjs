@@ -3,5 +3,5 @@ export interface ExerciseSubmission {
     submissionTitle: string;
     nbrOfExercises: number;
     subject: string;
-    createdAt: Date;
+    createdAt: string;
 }
