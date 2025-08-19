@@ -4,6 +4,7 @@ import Footer from '@/components/layout/footer';
 import NavBar from '@/components/layout/navBar';
 import { ExerciseSolution } from '@/model/ExerciseSolution';
 import { ExerciseSubmissionService } from '@/services/ExerciseSubmissonService';
+import katex from 'katex';
 import React, { useState, useRef, useEffect } from 'react';
 
 // Mockup data based on your DTOs - Multiple ExerciseSolutionDto objects
@@ -134,7 +135,7 @@ interface Props {
     };
 }
 
-const MathematicsExerciseWebsite = ({ params} : Props) => {
+const MathematicsExerciseWebsite = ({ params }: Props) => {
     const contentRef = useRef(null);
     const [selectedExercise, setSelectedExercise] = useState(0);
     const currentExercise = mockExerciseData[selectedExercise];
@@ -144,7 +145,7 @@ const MathematicsExerciseWebsite = ({ params} : Props) => {
     const [exercises, setExercises] = useState<ExerciseSolution[]>([]);
 
 
-    const submissionId = params.id; 
+    const submissionId = params.id;
     const submissionService = new ExerciseSubmissionService();
 
     const formatDate = (date: Date) => {
@@ -155,7 +156,7 @@ const MathematicsExerciseWebsite = ({ params} : Props) => {
         }).format(date);
     };
 
-    const formatExplication = (explication : string) => {
+    const formatExplication = (explication: string) => {
         return explication.split('\n').map((line, index) => {
             if (line.startsWith('•') || line.startsWith('-')) {
                 return <li key={index} className="ml-4">{line.substring(1).trim()}</li>;
@@ -186,12 +187,38 @@ const MathematicsExerciseWebsite = ({ params} : Props) => {
         getExercisesSolution(submissionId);
     }, [submissionId]);
 
+
+
+
+    const renderWithMath = (text: any) => {
+        // Split by $$ for display math and $ for inline math
+        const parts = text.split(/(\$\$.*?\$\$|\$.*?\$)/);
+
+        return parts.map((part: any, index: any) => {
+            if (part.startsWith('$$') && part.endsWith('$$')) {
+                // Display math
+                const math = part.slice(2, -2);
+                const html = katex.renderToString(math, { displayMode: true });
+                return <div key={index} dangerouslySetInnerHTML={{ __html: html }} />;
+            } else if (part.startsWith('$') && part.endsWith('$')) {
+                // Inline math  
+                const math = part.slice(1, -1);
+                const html = katex.renderToString(math, { displayMode: false });
+                return <span key={index} dangerouslySetInnerHTML={{ __html: html }} />;
+            } else {
+                // Regular text
+                return <span key={index}>{part}</span>;
+            }
+        });
+    };
+
     if (loading) {
         return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
     }
 
     return (
         <div className="min-h-screen bg-gray-50">
+
             <NavBar />
             <div className='grid grid-cols-1 md:grid-cols-2 '>
                 {/* Left Half - Mathematics Exercises */}
@@ -246,7 +273,7 @@ const MathematicsExerciseWebsite = ({ params} : Props) => {
                                             <div className="bg-green-100 border border-green-500 rounded-lg p-5 my-4">
                                                 <div className="font-bold text-green-600 mb-3">✅ Solution</div>
                                                 <div className="text-lg text-center p-4 rounded-md font-mono">
-                                                    {question.solution}
+                                                    {renderWithMath(question.solution)}
                                                 </div>
                                             </div>
 
@@ -254,11 +281,11 @@ const MathematicsExerciseWebsite = ({ params} : Props) => {
                                                 <div className="font-bold text-orange-600 mb-3">💡 Explication</div>
                                                 <div className="text-sm space-y-1">
                                                     {question.explication.includes('•') || question.explication.includes('\n') ? (
-                                                        <div>
+                                                        <div className="render-math" style={{ whiteSpace: 'pre-line' }}>
                                                             {formatExplication(question.explication)}
                                                         </div>
                                                     ) : (
-                                                        <p>{question.explication}</p>
+                                                        <p>{renderWithMath(question.explication)}</p>
                                                     )}
                                                 </div>
                                             </div>
@@ -316,7 +343,7 @@ const MathematicsExerciseWebsite = ({ params} : Props) => {
             </div>
 
             <Footer />
-            
+
         </div>
     );
 };
