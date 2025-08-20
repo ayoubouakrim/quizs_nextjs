@@ -190,27 +190,43 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
 
 
 
-    const renderWithMath = (text: any) => {
-        // Split by $$ for display math and $ for inline math
-        const parts = text.split(/(\$\$.*?\$\$|\$.*?\$)/);
-
-        return parts.map((part: any, index: any) => {
-            if (part.startsWith('$$') && part.endsWith('$$')) {
-                // Display math
-                const math = part.slice(2, -2);
-                const html = katex.renderToString(math, { displayMode: true });
-                return <div key={index} dangerouslySetInnerHTML={{ __html: html }} />;
-            } else if (part.startsWith('$') && part.endsWith('$')) {
-                // Inline math  
-                const math = part.slice(1, -1);
-                const html = katex.renderToString(math, { displayMode: false });
-                return <span key={index} dangerouslySetInnerHTML={{ __html: html }} />;
-            } else {
-                // Regular text
-                return <span key={index}>{part}</span>;
-            }
-        });
-    };
+    const renderWithMath = (text) => {
+  // First split by line breaks, then process each line for math
+  const lines = text.split('\n');
+  
+  return lines.map((line, lineIndex) => {
+    if (line.trim() === '') {
+      // Empty line becomes a line break
+      return <br key={lineIndex} />;
+    }
+    
+    // Split each line by math expressions
+    const parts = line.split(/(\$\$.*?\$\$|\$.*?\$)/);
+    
+    const renderedLine = parts.map((part, partIndex) => {
+      if (part.startsWith('$$') && part.endsWith('$$')) {
+        // Display math
+        const math = part.slice(2, -2);
+        const html = katex.renderToString(math, { displayMode: true });
+        return <div key={partIndex} dangerouslySetInnerHTML={{ __html: html }} />;
+      } else if (part.startsWith('$') && part.endsWith('$')) {
+        // Inline math  
+        const math = part.slice(1, -1);
+        const html = katex.renderToString(math, { displayMode: false });
+        return <span key={partIndex} dangerouslySetInnerHTML={{ __html: html }} />;
+      } else {
+        // Regular text
+        return <span key={partIndex}>{part}</span>;
+      }
+    });
+    
+    return (
+      <div key={lineIndex}>
+        {renderedLine}
+      </div>
+    );
+  });
+};
 
     if (loading) {
         return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
