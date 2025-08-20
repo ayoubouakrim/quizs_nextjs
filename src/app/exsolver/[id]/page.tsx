@@ -190,44 +190,79 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
 
 
 
-    const renderWithMath = (text) => {
-  // First split by line breaks, then process each line for math
-  const lines = text.split('\n');
-  
-  return lines.map((line, lineIndex) => {
-    if (line.trim() === '') {
-      // Empty line becomes a line break
-      return <br key={lineIndex} />;
-    }
-    
-    // Split each line by math expressions
-    const parts = line.split(/(\$\$.*?\$\$|\$.*?\$)/);
-    
-    const renderedLine = parts.map((part, partIndex) => {
-      if (part.startsWith('$$') && part.endsWith('$$')) {
-        // Display math
-        const math = part.slice(2, -2);
-        const html = katex.renderToString(math, { displayMode: true });
-        return <div key={partIndex} dangerouslySetInnerHTML={{ __html: html }} />;
-      } else if (part.startsWith('$') && part.endsWith('$')) {
-        // Inline math  
-        const math = part.slice(1, -1);
-        const html = katex.renderToString(math, { displayMode: false });
-        return <span key={partIndex} dangerouslySetInnerHTML={{ __html: html }} />;
-      } else {
-        // Regular text
-        return <span key={partIndex}>{part}</span>;
-      }
-    });
-    
-    return (
-      <div key={lineIndex}>
-        {renderedLine}
-      </div>
-    );
-  });
-};
+    const renderWithMath = (text: string) => {
+        const lines = text.split('\n');
 
+        return lines.map((line, lineIndex) => {
+            if (line.trim() === '') {
+                return <div key={lineIndex} className="h-4" />; // Spacing instead of <br>
+            }
+
+            // Check if line starts with "Step" for main headings
+            const isStepHeading = /^Step \d+:/.test(line.trim());
+
+            // Check if line starts with number/letter for sub-items
+            const isSubItem = /^\s*\d+\./.test(line) || /^\s*[a-z]\)/.test(line);
+
+            // Split each line by math expressions
+            const parts = line.split(/(\$\$.*?\$\$|\$.*?\$)/);
+
+            const renderedLine = parts.map((part, partIndex) => {
+                if (part.startsWith('$$') && part.endsWith('$$')) {
+                    // Display math - centered and larger
+                    const math = part.slice(2, -2);
+                    const html = katex.renderToString(math, {
+                        displayMode: true,
+                        throwOnError: false
+                    });
+                    return (
+                        <div
+                            key={partIndex}
+                            className="my-3 text-center"
+                            dangerouslySetInnerHTML={{ __html: html }}
+                        />
+                    );
+                } else if (part.startsWith('$') && part.endsWith('$')) {
+                    // Inline math
+                    const math = part.slice(1, -1);
+                    const html = katex.renderToString(math, {
+                        displayMode: false,
+                        throwOnError: false
+                    });
+                    return (
+                        <span
+                            key={partIndex}
+                            dangerouslySetInnerHTML={{ __html: html }}
+                        />
+                    );
+                } else {
+                    // Regular text
+                    return <span key={partIndex}>{part}</span>;
+                }
+            });
+
+            // Apply different styling based on content type
+            if (isStepHeading) {
+                return (
+                    <div key={lineIndex} className="font-semibold text-base mt-6 mb-3 text-gray-800 border-b border-gray-200 pb-1">
+                        {renderedLine}
+                    </div>
+                );
+            } else if (isSubItem) {
+                return (
+                    <div key={lineIndex} className="ml-6 mb-2 text-gray-700 leading-relaxed">
+                        {renderedLine}
+                    </div>
+                );
+            } else {
+                return (
+                    <div key={lineIndex} className="mb-2 text-gray-700 leading-relaxed">
+                        {renderedLine}
+                    </div>
+                );
+            }
+        });
+    };
     if (loading) {
         return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
     }
@@ -265,9 +300,9 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
                                     {/* Exercise Set Header */}
                                     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
                                         <h2 className="text-2xl font-bold text-slate-700 mb-2">
-                                            Exercice {exerciseIndex + 1}: {exerciseSet.title}
+                                             {exerciseSet.title}
                                         </h2>
-                                        <p className="text-gray-600 text-sm mb-2">{exerciseSet.description}</p>
+                                        <p className="text-gray-600 text-sm mb-2">{renderWithMath(exerciseSet.description)}</p>
                                         <p className="text-gray-500 text-xs">
                                             Date: ????? | {exerciseSet.questions.length} questions
                                         </p>
@@ -277,18 +312,13 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
                                     {exerciseSet.questions.map((question, questionIndex) => (
                                         <section key={question.id} className="mb-8 bg-white rounded-lg shadow-lg p-6 ml-4">
                                             <div className="text-lg font-bold text-slate-700 mb-4 pl-4 border-l-4 border-blue-500">
-                                                Question {questionIndex + 1}: {question.question.split(':')[0]}
+                                                Question {questionIndex + 1}: {renderWithMath(question.question.split(':')[0])}
                                             </div>
-                                            <div className="text-base leading-relaxed text-slate-700 mb-5">
-                                                {question.question.includes(':') ?
-                                                    question.question.split(':').slice(1).join(':').trim() :
-                                                    question.question
-                                                }
-                                            </div>
+                                            
 
                                             <div className="bg-green-100 border border-green-500 rounded-lg p-5 my-4">
                                                 <div className="font-bold text-green-600 mb-3">✅ Solution</div>
-                                                <div className="text-lg text-center p-4 rounded-md font-mono">
+                                                <div className="text-sm text-center p-4 rounded-md font-mono">
                                                     {renderWithMath(question.solution)}
                                                 </div>
                                             </div>
