@@ -4,4 +4,5 @@ export interface ExerciseSubmission {
     nbrOfExercises: number;
     subject: string;
     createdAt: string;
+    fileUrl: string;
 }

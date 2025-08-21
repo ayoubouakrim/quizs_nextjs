@@ -2,7 +2,9 @@
 
 import Footer from '@/components/layout/footer';
 import NavBar from '@/components/layout/navBar';
+import PdfViewer from '@/components/PdfViewer';
 import { ExerciseSolution } from '@/model/ExerciseSolution';
+import { ExerciseSubmission } from '@/model/ExerciseSubmission';
 import { ExerciseSubmissionService } from '@/services/ExerciseSubmissonService';
 import katex from 'katex';
 import React, { useState, useRef, useEffect } from 'react';
@@ -143,6 +145,7 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [exercises, setExercises] = useState<ExerciseSolution[]>([]);
+    const [submission, setSubmission] = useState<ExerciseSubmission | null>(null);
 
 
     const submissionId = params.id;
@@ -172,6 +175,9 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
         try {
             setLoading(true);
             setError(null);
+            const submission = await submissionService.getSubmissionById(submissionId);
+            console.log("Submission data:", submission);
+            setSubmission(submission);
             const exercises = await submissionService.getExerciesBySubmissionId(submissionId);
             setExercises(exercises);
         } catch (err) {
@@ -300,7 +306,7 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
                                     {/* Exercise Set Header */}
                                     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
                                         <h2 className="text-2xl font-bold text-slate-700 mb-2">
-                                             {exerciseSet.title}
+                                            {exerciseSet.title}
                                         </h2>
                                         <p className="text-gray-600 text-sm mb-2">{renderWithMath(exerciseSet.description)}</p>
                                         <p className="text-gray-500 text-xs">
@@ -314,7 +320,7 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
                                             <div className="text-lg font-bold text-slate-700 mb-4 pl-4 border-l-4 border-blue-500">
                                                 Question {questionIndex + 1}: {renderWithMath(question.question.split(':')[0])}
                                             </div>
-                                            
+
 
                                             <div className="bg-green-100 border border-green-500 rounded-lg p-5 my-4">
                                                 <div className="font-bold text-green-600 mb-3">✅ Solution</div>
@@ -375,16 +381,14 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
 
                 {/* Right Half - Interactive Sidebar */}
                 <div className=" bg-white border-l border-gray-300">
-                    <div className="p-8 h-full">
-                        <div className="max-w-md mx-auto">
-                            <div className="text-center mb-8">
-                                <div className="text-4xl mb-4">🧮</div>
-                                <h2 className="text-2xl font-bold text-slate-700 mb-2">Espace Interactif</h2>
-                                <p className="text-gray-600">Outils et ressources complémentaires leave it empty </p>
-                            </div>
-                        </div>
-
-                    </div>
+                    
+                            <PdfViewer
+                                fileUrl={submission?.fileUrl || ''}
+                                width={800}
+                                height={600}
+                                className="mx-auto"
+                            />
+                    
                 </div>
             </div>
 
