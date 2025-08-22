@@ -380,16 +380,17 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
                 </div>
 
                 {/* Right Half - Interactive Sidebar */}
-                <div className=" bg-white border-l border-gray-300">
-                    
-                            <PdfViewer
-                                fileUrl={submission?.fileUrl || ''}
-                                width={800}
-                                height={600}
-                                className="mx-auto"
-                            />
-                    
+                <div className="bg-white border-l border-gray-300 sticky top-0 h-screen overflow-hidden">
+                    <div className="h-full flex items-center justify-center">
+                        <PdfViewer
+                            fileUrl={submission?.fileUrl || ''}
+                            width={800}
+                            height={600}
+                            className="mx-auto"
+                        />
+                    </div>
                 </div>
+
             </div>
 
             <Footer />
