@@ -151,12 +151,22 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
     const submissionId = params.id;
     const submissionService = new ExerciseSubmissionService();
 
-    const formatDate = (date: Date) => {
-        return new Intl.DateTimeFormat('fr-FR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }).format(date);
+    const formatDate = (createdAt: string) => {
+        const date = new Date(createdAt); // convert string to Date
+        const now = new Date();
+
+        const diffTime = now.getTime() - date.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+            return `Today at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+        } else if (diffDays === 1) {
+            return `Yesterday at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+        } else if (diffDays < 7) {
+            return `${date.toLocaleDateString('en-US')} at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+        } else {
+            return date.toLocaleDateString('en-US');
+        }
     };
 
     const formatExplication = (explication: string) => {
@@ -289,11 +299,11 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
                             <div className="px-8 py-6">
                                 <div className="text-center border-b-2 border-slate-700 pb-4">
                                     <h1 className="text-3xl font-bold text-slate-700 mb-2">
-                                        Exercices de Mathématiques
+                                        {submission?.submissionTitle}
                                     </h1>
                                     <p className="text-gray-600 text-sm leading-relaxed">
                                         Collection complète d'exercices résolus<br />
-                                        {mockExerciseData.length} exercices | {mockExerciseData.reduce((total, ex) => total + ex.questions.length, 0)} questions
+                                        {exercises.length} exercices | {exercises.reduce((total, ex) => total + ex.questions.length, 0)} questions | Soumis le {submission?.createdAt ? formatDate(submission.createdAt) : 'Date inconnue'}
                                     </p>
                                 </div>
                             </div>
@@ -345,48 +355,15 @@ const MathematicsExerciseWebsite = ({ params }: Props) => {
                                     ))}
                                 </div>
                             ))}
-
-                            {/* Summary Section */}
-                            <section className="bg-white rounded-lg shadow-lg p-6">
-                                <h3 className="text-slate-700 text-xl font-semibold mb-4 flex items-center">
-                                    📊 Résumé des Résultats
-                                </h3>
-                                <div className="overflow-hidden rounded-lg border">
-                                    <table className="w-full border-collapse bg-white">
-                                        <thead>
-                                            <tr className="bg-slate-600 text-white">
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Exercice</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Question</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Réponse</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {mockExerciseData.map((exerciseSet, exerciseIndex) =>
-                                                exerciseSet.questions.map((question, questionIndex) => (
-                                                    <tr key={question.id} className="border-b border-gray-200 hover:bg-gray-50">
-                                                        <td className="px-4 py-3 text-sm font-medium">Exercice {exerciseIndex + 1}</td>
-                                                        <td className="px-4 py-3 text-sm">Question {questionIndex + 1}</td>
-                                                        <td className="px-4 py-3 text-sm font-mono">{question.solution}</td>
-                                                    </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
                         </main>
-
                     </div>
                 </div>
 
                 {/* Right Half - Interactive Sidebar */}
-                <div className="bg-white border-l border-gray-300 sticky top-0 h-screen overflow-hidden">
-                    <div className="h-full flex items-center justify-center">
+                <div className="border-l border-gray-300 sticky top-0 h-screen overflow-hidden">
+                    <div className="w-full h-full">
                         <PdfViewer
                             fileUrl={submission?.fileUrl || ''}
-                            width={800}
-                            height={600}
-                            className="mx-auto"
                         />
                     </div>
                 </div>
