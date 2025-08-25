@@ -17,7 +17,8 @@ import {
     MoreVertical,
     Bell,
     Book,
-    ArrowRight
+    ArrowRight,
+    School
 } from 'lucide-react';
 import NavBar from '@/components/layout/navBar';
 import Footer from '@/components/layout/footer';
@@ -29,12 +30,15 @@ import { Quiz } from '@/model/Quiz';
 import { Summary } from '@/model/Summary';
 import { FlashCardSet } from '@/model/FlashCardSet';
 import { FileInfoService } from '@/services/FileInfoService';
+import { ExerciseSubmissionService } from '@/services/ExerciseSubmissonService';
+import { ExerciseSubmission } from '@/model/ExerciseSubmission';
 
 const ImprovedNavbar = () => {
     const quizService = new QuizService();
     const summaryService = new SummaryService();
     const flashcardService = new FlashCardSetService();
     const fileService = new FileInfoService();
+    const exerciseSubmissionService = new ExerciseSubmissionService();
 
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [files, setFiles] = useState([]);
@@ -43,8 +47,10 @@ const ImprovedNavbar = () => {
     const [nbrFlash, setNbrFlash] = useState(0);
     const [nbrQuizzes, setNbrQuizzes] = useState(0);
     const [nbrSummaries, setNbrSummaries] = useState(0);
+    const [nbrExercises, setNbrExercises] = useState(0);
 
     const [flashCardSets, setFlashCardSets] = useState<FlashCardSet[]>([]);
+    const [exercises, setExercises] = useState<ExerciseSubmission[]>([]);
     const [activeDropdown, setActiveDropdown] = useState(null);
 
     const router = useRouter();
@@ -54,7 +60,8 @@ const ImprovedNavbar = () => {
         { icon: FileText, label: "Documents", value: "12", change: "+3", color: "text-blue-600", bg: "bg-blue-50" },
         { icon: Brain, label: "Quizzes", value: nbrQuizzes, change: "+12", color: "text-purple-600", bg: "bg-purple-50" },
         { icon: BookOpen, label: "Summaries", value: nbrSummaries, change: "+8", color: "text-green-600", bg: "bg-green-50" },
-        { icon: PenTool, label: "Flashcards", value: nbrFlash, change: "+15", color: "text-orange-600", bg: "bg-orange-50" }
+        { icon: PenTool, label: "Flashcards", value: nbrFlash, change: "+15", color: "text-orange-600", bg: "bg-orange-50" },
+        { icon: School, label: "Solutions", value: nbrExercises, change: "+15", color: "text-red-600", bg: "bg-red-50" }
     ];
 
     const recentFiles = [
@@ -64,12 +71,7 @@ const ImprovedNavbar = () => {
         { id: 4, name: "React Components Guide.md", type: "MD", size: "1.2 MB", date: "3 days ago", status: "processed" }
     ];
 
-    const recentActivity = [
-        { action: "Generated quiz", file: "Machine Learning.pdf", time: "30 min ago", type: "quiz" },
-        { action: "Created summary", file: "JavaScript Concepts.docx", time: "2 hours ago", type: "summary" },
-        { action: "Built exercises", file: "Database Design.txt", time: "5 hours ago", type: "exercise" },
-        { action: "Uploaded file", file: "React Components.md", time: "1 day ago", type: "upload" }
-    ];
+    
 
     const getDifficultyColor = (difficulty: string) => {
     switch(difficulty) {
@@ -91,6 +93,8 @@ const ImprovedNavbar = () => {
 
 
     useEffect(() => {
+        setUsername(localStorage.getItem('username'));
+
         quizService.getAllQuizzes()
             .then(quizzes => {
                 const latestQuizzes = quizzes
@@ -123,7 +127,17 @@ const ImprovedNavbar = () => {
                 setNbrFlash(nbrFlashCardSets);
             })
         
-        setUsername(localStorage.getItem('username'));
+        exerciseSubmissionService.getAllSubmissions()
+            .then(exercises => {
+                const latestExercises = exercises
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 5);
+                const nbrExercises = exercises.length;
+
+                setExercises(latestExercises);
+                setNbrExercises(nbrExercises);
+            })
+        
 
     }, []);
 
@@ -135,16 +149,16 @@ const ImprovedNavbar = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
                     <div className="space-y-6">
                         {/* Welcome Banner */}
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                            <h1 className="text-xl font-bold text-gray-900 ">
-                                Hello {username}, welcome to your Dashboard!
+                        <div className="bg-gradient-to-br from-blue-400 to-blue-200  rounded-xl p-6 border border-blue-100">
+                            <h1 className="text-2xl text-gray-800">
+                               <strong> Hello {username}, welcome to your Dashboard! </strong>
                             </h1>
-                            <p className="text-gray-600">
+                            <p className="text-base text-gray-700">
                                 Ready to transform your educational content with AI? Upload a file to get started.
                             </p>
 
                             {/* quick Actions */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
                                 <button
                                     onClick={() => router.push('/quiz/generate')}
                                     className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 group"
@@ -182,13 +196,25 @@ const ImprovedNavbar = () => {
                                     </div>
 
                                 </button>
+                                <button
+                                    onClick={() => router.push('exsolver/generate')}
+                                    className="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-sm transition-all duration-200 group"
+                                >
+                                    <div className="p-2 bg-red-100 rounded-lg mr-3 group-hover:bg-red-200 transition-colors">
+                                        <School className="h-4 w-4 text-red-600" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-medium text-gray-900 text-sm">Solve an Exercise</p>
+                                        <p className="text-xs text-gray-500">Create detailed solutions</p>
+                                    </div>
 
+                                </button>
 
                             </div>
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                             {stats.map((stat, index) => {
                                 const IconComponent = stat.icon;
                                 return (
@@ -280,8 +306,42 @@ const ImprovedNavbar = () => {
                             </div>
                         </div>
 
-                        {/* Recent files and summaries */}
+                        {/* Recent Solutions and summaries */}
                         <div className="grid lg:grid-cols-2 gap-6">
+                            {/* Latest Solutions Sets */}
+                            <div className="bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                                    <h3 className="font-semibold text-gray-900">Latest Exercises solution</h3>
+                                    <button onClick={() => router.push('/exsolver/list')} className="text-xs text-red-600 hover:text-red-800 font-medium">
+                                        View All →
+                                    </button>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    {exercises.map((set, index) => (
+                                        <button onClick={() => router.push(`/exsolver/${set.id}`)} className="w-full" key={index}>
+                                        <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg group">
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                                    <School className="h-4 w-4 text-red-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">{set.submissionTitle}</p>
+                                                    <div className="flex items-center space-x-2 mt-1">
+                                                        <p className="text-xs text-gray-500">{new Date(set.createdAt).toLocaleDateString()}</p>
+                                                        <span className="text-xs text-gray-300">•</span>
+                                                        <span className="text-xs text-red-600 font-medium">{set.nbrOfExercises} exercises</span>
+                                                        <span className="px-2 py-0.5 rounded-full text-xs font-medium">
+                                                            {set.subject}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all duration-200" />
+                                        </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                             {/* Latest Summaries */}
                             <div className="bg-white rounded-lg border border-gray-200">
                                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
