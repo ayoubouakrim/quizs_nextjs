@@ -149,7 +149,7 @@ const ImprovedNavbar = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
                     <div className="space-y-6">
                         {/* Welcome Banner */}
-                        <div className="bg-gradient-to-br from-blue-400 to-blue-200  rounded-xl p-6 border border-blue-100">
+                        <div className="bg-gradient-to-br from-sky-300 to-sky-200  rounded-xl p-6 border border-blue-100">
                             <h1 className="text-2xl text-gray-800">
                                <strong> Hello {username}, welcome to your Dashboard! </strong>
                             </h1>

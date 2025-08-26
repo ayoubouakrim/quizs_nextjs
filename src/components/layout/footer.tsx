@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-    Mail, 
-    Phone, 
-    MapPin, 
-    Facebook, 
-    Twitter, 
-    Linkedin, 
+import {
+    Mail,
+    Phone,
+    MapPin,
+    Facebook,
+    Twitter,
+    Linkedin,
     Instagram,
     GraduationCap,
     Heart
@@ -20,10 +20,16 @@ const Footer = () => {
                     {/* Brand Section */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-2">
-                            <div className="p-2 bg-blue-600 rounded-lg">
-                                <GraduationCap className="h-6 w-6 text-white" />
+                            <div className="flex items-center">
+                                <div className="flex-shrink-0 flex items-center group">
+                                    <img
+                                        src="/brand/scribe-logoo.png"
+                                        alt="Scribe Logo"
+                                        className="h-20 w-auto border rounded-3xl mr-3 group-hover:scale-105 transition-all duration-300"
+                                    />
+
+                                </div>
                             </div>
-                            <span className="text-xl font-bold">EduAI</span>
                         </div>
                         <p className="text-gray-400 text-sm leading-relaxed">
                             Transform your educational content with AI-powered tools. Create quizzes, summaries, and interactive exercises effortlessly.
@@ -90,8 +96,8 @@ const Footer = () => {
                         <div className="pt-4">
                             <h4 className="text-sm font-medium mb-2">Stay Updated</h4>
                             <div className="flex space-x-2">
-                                <input 
-                                    type="email" 
+                                <input
+                                    type="email"
                                     placeholder="Your email"
                                     className="flex-1 px-3 py-2 bg-gray-800 rounded-lg text-sm border border-gray-700 focus:border-blue-500 focus:outline-none"
                                 />
