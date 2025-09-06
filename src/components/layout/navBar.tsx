@@ -32,7 +32,7 @@ const NavBar = () => {
                     <div className="flex items-center">
                         <div className="flex-shrink-0 flex items-center group">
                             <img
-                                src="/brand/scribe-logoo.png"
+                                src="/brand/scribe-logo.png"
                                 alt="Scribe Logo"
                                 className="h-14 w-auto mr-3 group-hover:scale-105 transition-all duration-300"
                             />

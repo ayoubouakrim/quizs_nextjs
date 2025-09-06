@@ -23,7 +23,7 @@ const Footer = () => {
                             <div className="flex items-center">
                                 <div className="flex-shrink-0 flex items-center group">
                                     <img
-                                        src="/brand/scribe-logoo.png"
+                                        src="/brand/scribe-logo.png"
                                         alt="Scribe Logo"
                                         className="h-20 w-auto border rounded-3xl mr-3 group-hover:scale-105 transition-all duration-300"
                                     />

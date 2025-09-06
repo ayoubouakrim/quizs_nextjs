@@ -39,35 +39,35 @@ const QuizsListPage = () => {
 
     // Mock Data
     const fetchQuizzes = async () => {
-            try {
-                setLoading(true);
-                const quizService = new QuizService()
-                const data = await quizService.getAllQuizzes();
-                console.log("Fetched quizzes in FE:", data);
-                setQuizzes(data)
-            } catch (e) {
-                setError("Failed to fetch quizzes"+ e);
-            } finally {
-                setLoading(false);
-            }
+        try {
+            setLoading(true);
+            const quizService = new QuizService()
+            const data = await quizService.getAllQuizzes();
+            console.log("Fetched quizzes in FE:", data);
+            setQuizzes(data)
+        } catch (e) {
+            setError("Failed to fetch quizzes: " + e);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
         fetchQuizzes();
     }, []);
 
-    // Filter Logic
-    /* useEffect(() => {
+    // Filter & Sort Logic
+    useEffect(() => {
         let filtered = quizzes.filter(quiz => {
-            const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            const matchesSearch = quiz.libelle.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 quiz.subjectArea.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
             
             const matchesSubject = !filterSubject || quiz.subjectArea === filterSubject;
             const matchesDifficulty = !filterDifficulty || quiz.difficulty === filterDifficulty;
-            const matchesStatus = !filterStatus || quiz.status === filterStatus;
+        
             
-            return matchesSearch && matchesSubject && matchesDifficulty && matchesStatus;
+            return matchesSearch && matchesSubject && matchesDifficulty;
         });
 
         // Sort Logic
@@ -76,20 +76,20 @@ const QuizsListPage = () => {
 
             switch (sortBy) {
                 case 'title':
-                    aValue = a.title.toLowerCase();
-                    bValue = b.title.toLowerCase();
+                    aValue = a.libelle.toLowerCase();
+                    bValue = b.libelle.toLowerCase();
                     break;
                 case 'createdAt':
                     aValue = new Date(a.createdAt).getTime();
                     bValue = new Date(b.createdAt).getTime();
                     break;
                 case 'averageScore':
-                    aValue = a.averageScore;
-                    bValue = b.averageScore;
+                    aValue = a.score; // assuming `score` is average score
+                    bValue = b.score;
                     break;
                 case 'totalAttempts':
-                    aValue = a.totalAttempts;
-                    bValue = b.totalAttempts;
+                    aValue = a.nbRepCorrect; // assuming this is total attempts
+                    bValue = b.nbRepCorrect;
                     break;
                 default:
                     aValue = a.createdAt;
@@ -104,7 +104,7 @@ const QuizsListPage = () => {
         });
 
         setFilteredQuizzes(filtered);
-    }, [quizzes, searchTerm, filterSubject, filterDifficulty, filterStatus, sortBy, sortOrder]); */
+    }, [quizzes, searchTerm, filterSubject, filterDifficulty, filterStatus, sortBy, sortOrder]);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -146,26 +146,29 @@ const QuizsListPage = () => {
     const difficulties = ['beginner', 'intermediate', 'advanced', 'mixed'];
     const statuses = ['active', 'draft', 'archived'];
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    if (error) return <div className="flex items-center justify-center h-screen text-red-600">Error: {error}</div>;
 
     return (
-        <div className=" min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50">
             <NavBar />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-3">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Quizs</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Quizzes</h1>
                         <p className="text-gray-600">Manage and track your generated quizzes</p>
                     </div>
-                    <button className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create New Quiz
-                    </button>
+                    <Link href="/quiz/create" className="mt-4 sm:mt-0">
+                        <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create New Quiz
+                        </button>
+                    </Link>
                 </div>
+
                 {/* Filters */}
-                <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm mb-6">
+                <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm mb-8">
                     <div className="flex flex-col lg:flex-row gap-4">
                         {/* Search */}
                         <div className="flex-1">
@@ -178,11 +181,10 @@ const QuizsListPage = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
-
                             </div>
                         </div>
                         {/* Filters */}
-                        <div className=" flex flex-wrap gap-4">
+                        <div className="flex flex-wrap gap-4">
                             <div className="relative">
                                 <select
                                     value={filterSubject}
@@ -248,94 +250,92 @@ const QuizsListPage = () => {
                                 </select>
                                 <ChevronDown className="absolute right-2 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
                             </div>
-
                         </div>
-
                     </div>
                 </div>
-                {/* Quiz List */}
-                <div className="space-y-4">
-                    {quizzes.length === 0 ? (
-                        <div className="text-center py-12">
-                            <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4"/>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No quizzes found</h3>
-                            <p className="text-gray-600">Try adjusting your search or filters</p>
-                        </div>
-                    ) : (
-                        quizzes.map((quiz) => (
-                            <div key={quiz.id} className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                                <div className="p-6">
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between">
-                                        <div className="flex-1">
-                                            <div className="flex items-start justify-between mb-2">
-                                                <h3 className="text-lg font-semibold text-gray-900">{quiz.libelle}</h3>
-                                                <div className="flex gap-2 ml-4">
-                                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(quiz.difficulty)}`}>
-                                                        {quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
-                                                    </span> 
-                                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(quiz.difficulty)}`}>
-                                                        {quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
-                                                    </span> 
-                                                </div>
+
+                {/* Quiz Cards Grid */}
+                {filteredQuizzes.length === 0 ? (
+                    <div className="text-center py-16 bg-white rounded-lg shadow-sm">
+                        <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4"/>
+                        <h3 className="text-xl font-medium text-gray-900 mb-2">No quizzes found</h3>
+                        <p className="text-gray-600">Try adjusting your search or filters</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {filteredQuizzes.map((quiz) => (
+                            <div 
+                                key={quiz.id} 
+                                className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                            >
+                                <div className="p-5 flex flex-col h-full">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{quiz.libelle}</h3>
+                                        <div className="flex flex-col sm:flex-row gap-2 ml-4">
+                                            <span className={`px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${getDifficultyColor(quiz.difficulty)}`}>
+                                                {quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
+                                            </span>
+                                            <span className={`px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${getStatusColor(quiz.difficulty)}`}>
+                                                {quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">{quiz.description}</p>
+
+                                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-500 mb-4">
+                                        <span className="flex items-center">
+                                            <BookOpen className="w-3 h-3 mr-1" />
+                                            {quiz.subjectArea}
+                                        </span>
+                                        <span className="flex items-center">
+                                            <Target className="w-3 h-3 mr-1" />
+                                            {quiz.academicLevel}
+                                        </span>
+                                        <span className="flex items-center">
+                                            <Clock className="w-3 h-3 mr-1" />
+                                            {quiz.numQuestions} questions
+                                        </span>
+                                        <span className="flex items-center">
+                                            <Calendar className="w-3 h-3 mr-1" />
+                                            {formatDate(quiz.createdAt)}
+                                        </span>
+                                    </div>
+
+                                    {quiz.nbRepCorrect > 0 && (
+                                        <div className="flex gap-4 text-sm mb-4">
+                                            <div className="text-center">
+                                                <p className="font-semibold text-gray-900">{quiz.nbRepCorrect}</p>
+                                                <p className="text-gray-500 text-xs">Attempts</p>
                                             </div>
-                                            <p className="text-gray-600 mb-3">{quiz.description}</p>
-                                            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                                                <span className="flex items-center">
-                                                    <BookOpen className="w-4 h-4 mr-1" />
-                                                    {quiz.subjectArea}
-                                                </span>
-                                                <span className="flex items-center">
-                                                    <Target className="w-4 h-4 mr-1" />
-                                                    {quiz.academicLevel}
-                                                </span>
-                                                <span className="flex items-center">
-                                                    <Clock className="w-4 h-4 mr-1" />
-                                                    {quiz.numQuestions} questions
-                                                </span>
-                                                <span className="flex items-center">
-                                                    <Calendar className="w-4 h-4 mr-1" />
-                                                    Created {formatDate(quiz.createdAt)}
-                                                </span>
+                                            <div className="text-center">
+                                                <p className="font-semibold text-gray-900">{quiz.score}%</p>
+                                                <p className="text-gray-500 text-xs">Avg Score</p>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 mt-4 lg:mt-0 lg:ml-6">
-                                            {quiz.nbRepCorrectes > 0 && (
-                                                <div className="flex gap-6 text-sm">
-                                                    <div className="text-center">
-                                                        <p className="font-semibold text-gray-900">{quiz.nbRepCorrectes}</p>
-                                                        <p className="text-gray-500">Attempts</p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <p className="font-semibold text-gray-900">{quiz.score}%</p>
-                                                        <p className="text-gray-500">Avg Score</p>
-                                                    </div>
-                                                </div>
-                                            )}
-                                            <div className="flex gap-2">
-                                                <Link href={`/quiz/${quiz.id}`}>
-                                                <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                                </Link>
-                                                <button className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                                    <BarChart3 className="w-4 h-4" />
-                                                </button>
-                                                <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </div>
+                                    )}
+
+                                    <div className="flex gap-2 pt-2 border-t border-gray-100 mt-auto">
+                                        <Link href={`/quiz/${quiz.id}`} className="flex-1">
+                                            <button className="w-full p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex justify-center">
+                                                <Eye className="w-4 h-4" />
+                                            </button>
+                                        </Link>
+                                        <button className="flex-1 p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors flex justify-center">
+                                            <Edit className="w-4 h-4" />
+                                        </button>
+                                        <button className="flex-1 p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex justify-center">
+                                            <BarChart3 className="w-4 h-4" />
+                                        </button>
+                                        <button className="flex-1 p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex justify-center">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        ))
-                        
-                    )}
-
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
             <Footer />
         </div>
