@@ -10,6 +10,7 @@ import { Quiz } from "@/model/Quiz";
 import { QuizService } from "@/services/QuizService";
 import { useRouter } from 'next/navigation';
 import { useQuizStore } from "@/lib/QuizStore";
+
 interface Props {
     params: { id: string }
 }
@@ -20,7 +21,7 @@ const QuizPage = ({ params }: Props) => {
     const quizService = new QuizService();
     const router = useRouter();
 
-    const [quiz, setQuiz] = useState<Quiz | undefined>();
+    const [quiz, setQuiz] = useState<Quiz>();
     const [questions, setQuestions] = useState<Question[]>([]);
     const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
 
@@ -81,8 +82,13 @@ const QuizPage = ({ params }: Props) => {
         const score = Math.round((correctAnswers / questions.length) * 100);
         console.log('Final score:', score + '%');
 
-        quiz.nbRepCorrect = correctAnswers; // Assuming Quiz has a nbRepCorrectes property
-        quiz.score = score; // Assuming Quiz has a score property
+        if (!quiz) {
+            console.error('Quiz data is not available.');
+            return;
+        }
+
+        quiz.nbRepCorrect = correctAnswers; 
+        quiz.score = score; 
         console.log('quiz info answers:', quiz);
         // Submit the quiz results
         quizService.updateQuiz(quiz);
@@ -225,12 +231,10 @@ const QuizPage = ({ params }: Props) => {
                             key={question.id}
                             className="relative overflow-hidden group"
                         >
-                            {/* Glassmorphism background */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-white via-white/40 to-white backdrop-blur-xl"></div>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                            
 
                             {/* Content container */}
-                            <div className="relative z-10 border border-white/20 rounded-2xl  p-6 sm:p-8 hover:shadow-3xl transition-all duration-500 ease-out hover:-translate-y-1 group-hover:border-white/30">
+                            <div className="relative z-10 border border-white/20 rounded-2xl bg-white  p-6 sm:p-8 hover:shadow-3xl transition-all duration-500 ease-out hover:-translate-y-1 group-hover:border-white/30">
 
                                 {/* Animated particles */}
                                 <div className="absolute top-3 right-4 w-1 h-1 bg-violet-400/40 rounded-full animate-ping"></div>
@@ -288,10 +292,7 @@ const QuizPage = ({ params }: Props) => {
                                                     <div className="absolute inset-0 bg-gradient-to-r from-violet-400/10 via-blue-400/5 to-indigo-400/10 pointer-events-none"></div>
                                                 )}
 
-                                                {/* Animated shine effect for selected */}
-                                                {isSelected && (
-                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-pulse"></div>
-                                                )}
+                                                
 
                                                 <div className="flex items-center">
                                                     {/* Modern Radio Button */}
@@ -307,10 +308,7 @@ const QuizPage = ({ params }: Props) => {
                                                                 <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
                                                             )}
                                                         </div>
-                                                        {/* Glow effect for selected */}
-                                                        {isSelected && (
-                                                            <div className="absolute inset-0 bg-gradient-to-br from-violet-400 to-blue-500 rounded-full blur-sm opacity-30 -z-10"></div>
-                                                        )}
+                                                        
                                                     </div>
 
                                                     {/* Option Label */}
